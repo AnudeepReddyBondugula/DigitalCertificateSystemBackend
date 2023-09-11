@@ -37,10 +37,10 @@ mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS
 
 //* Middlewares
 app.use(cors());
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // * Verifies the user JWToken -> Used for protected Pages
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
@@ -84,14 +84,16 @@ const verifyCred = async (req, res, next) => {
 
 // * Routes
 
-app.post('/login', verifyCred, async(req, res) => {
+
+// ** USER ROUTES
+app.post('/user/login', verifyCred, async(req, res) => {
     const token =  jwt.sign({username : req.body.username}, process.env.SECRET, {expiresIn : '1h'});
 
     res.json({message : "Login Success!",
               token : token});
 })
 
-app.post('/signup' ,async (req, res) => {
+app.post('/user/signup' ,async (req, res) => {
 
     const {username, password, publicaddress, aadharcard} = req.body;
 
@@ -100,10 +102,7 @@ app.post('/signup' ,async (req, res) => {
         return;
     }
     // ! Validate for username, publicAddress and aadharcard later
-    // else if (!(isValidEmail(username))){
-    //     res.status(401).json({message: "Invalid Input!"});
-    //     return;
-    // }
+    
     // * Check if user aldready exists!
     const user = await User.findOne({username});
     if (user){
@@ -125,10 +124,19 @@ app.post('/signup' ,async (req, res) => {
     
 })
 
-app.get("/dashboard", verifyToken, (req, res)=> {
+app.get("/user/dashboard", verifyToken, async (req, res)=> {
     const {username} = req.body;
     res.json({message : "DashBoard Success!", user: req.user})
 })
+
+
+
+// * ORGANISATION ROUTES
+app.post('/org/login', verifyCred, async(req, res) => {
+
+})
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
@@ -137,17 +145,6 @@ app.listen(port, () => {
 
 
 // * Helper Functions
-
-// ** Use to check if the user exists or not
-function userExists(_username) {
-    for(var i in Users){
-        const {username} = Users[i];
-        if (username == _username){
-            return true;
-        }
-    }
-    return false;
-}
 
 const isValidEmail = (_email) => {
     const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
