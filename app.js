@@ -133,8 +133,42 @@ app.get("/user/dashboard", verifyToken, async (req, res)=> {
 
 // * ORGANISATION ROUTES
 app.post('/org/login', verifyCred, async(req, res) => {
+    const token =  jwt.sign({username : req.body.username}, process.env.SECRET, {expiresIn : '1h'});
 
+    res.json({message : "Login Success!",
+              token : token});
 })
+
+app.post('/org/signup' ,async (req, res) => {
+
+    const {username, password, publicaddress} = req.body;
+
+    if (!(username && password && publicaddress)){
+        res.status(401).json({message : "Unauthorized"});
+        return;
+    }
+    // ! Validate for username, publicAddress later
+    
+    // * Check if user aldready exists!
+    const user = await User.findOne({username});
+    if (user){
+        return res.status(401).json({message : "User Aldredy Exists!"});
+    }
+    const newUser = new User({
+        username,
+        password,
+        publicaddress
+    })
+
+    await newUser.save();
+
+    const token =  jwt.sign({username}, process.env.SECRET, {expiresIn : "1h"});
+
+    res.status(201).json({message : "User Created Successfully",
+              token : token});
+    
+})
+
 
 
 
