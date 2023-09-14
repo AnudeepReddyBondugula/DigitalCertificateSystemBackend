@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose")
+const {getPublicKey, getAddress, encrypt, decrpyt} = require("./utils/crypto-helper");
+const {isValidEmail} = require("./utils/validators");
 require('dotenv').config();
 
 // * Creating Server
@@ -16,14 +18,16 @@ const userSchema = new mongoose.Schema({
     username : String,
     password : String,
     publicaddress : String,
+    privatekey : String,
     aadharcard : String,
-    certificates : [String]
+    certificates : [String] // ? optional
 })
 
 const organizationSchema = new mongoose.Schema({
     username : String,
     password : String,
-    publicaddress : String
+    publicaddress : String,
+    privatekey : String
 })
 
 
@@ -73,9 +77,7 @@ const verifyCred = async (req, res, next) => {
         else{
             return res.status(401).json({message: "Unauthorized"})
         }
-    }
-    
-
+    }   
 }
 
 
@@ -95,23 +97,27 @@ app.post('/user/login', verifyCred, async(req, res) => {
 
 app.post('/user/signup' ,async (req, res) => {
 
-    const {username, password, publicaddress, aadharcard} = req.body;
+    const {username, password, privatekey, aadharcard} = req.body;
 
-    if (!(username && password && publicaddress && aadharcard)){
+    if (!(username && password && privatekey && aadharcard)){
         res.status(401).json({message : "Unauthorized"});
         return;
     }
-    // ! Validate for username, publicAddress and aadharcard later
+    // TODO: Validate for username, privateKey and aadharcard later
     
     // * Check if user aldready exists!
+    // ? validate also for users having same public address(optional)
     const user = await User.findOne({username});
     if (user){
-        return res.status(401).json({message : "User Aldredy Exists!"});
+        return res.status(401).json({message : "User Aldready Exists!"});
     }
+    const publicaddress = getAddress(getPublicKey(privatekey));
+    const cipherText = encrypt(privatekey, password);
     const newUser = new User({
         username,
         password,
         publicaddress,
+        privatekey : cipherText,
         aadharcard
     })
 
@@ -141,23 +147,27 @@ app.post('/org/login', verifyCred, async(req, res) => {
 
 app.post('/org/signup' ,async (req, res) => {
 
-    const {username, password, publicaddress} = req.body;
+    const {username, password, privatekey} = req.body;
 
-    if (!(username && password && publicaddress)){
+    if (!(username && password && privatekey)){
         res.status(401).json({message : "Unauthorized"});
         return;
     }
-    // ! Validate for username, publicAddress later
+    // TODO: Validate for username, privateKey later
     
     // * Check if user aldready exists!
-    const user = await User.findOne({username});
+    // ? validate also for users having same public address(optional)
+    const user = await Organization.findOne({username});
     if (user){
-        return res.status(401).json({message : "User Aldredy Exists!"});
+        return res.status(401).json({message : "User Aldready Exists!"});
     }
-    const newUser = new User({
+    const publicaddress = getAddress(getPublicKey(privatekey));
+    const cipherText = encrypt(privatekey, password);
+    const newUser = new Organization({
         username,
         password,
-        publicaddress
+        publicaddress,
+        privatekey : cipherText,
     })
 
     await newUser.save();
@@ -175,35 +185,3 @@ app.post('/org/signup' ,async (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
-
-
-
-// * Helper Functions
-
-const isValidEmail = (_email) => {
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
-    return emailRegex.test(_email);
-}
-
-const isValidPublicAddress = (_publicAddr) => {
-    const publicAddrRegex = /^0x[a-fA-F0-9]{40}$/gm;
-    return publicAddrRegex.test(_publicAddr);
-}
-
-const isValidAadharCard = (_aadharCard) => {
-    const aadharCardRegex = /^[2-9]{1}[0-9]{3}\s[0-9]{4}\s[0-9]{4}$/
-
-    return aadharCardRegex.test(_aadharCard);
-}
-
-const isValidUser = (_username, _password) => {
-    for(var i in Users){
-        const {username, password} = Users[i];
-        if (username == _username && password == _password){
-            return true;
-        }
-    }
-    return false;
-}
-
