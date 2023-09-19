@@ -33,3 +33,39 @@ export const isvalidatePrivateKey = (_privateKey) => {
 
     return true;
 }
+
+// * Verifies the user JWToken -> Used for protected Pages
+const verifyToken = async (req, res, next) => {
+    const token = req.headers.authorization;
+  
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+  
+    jwt.verify(token, process.env.SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+  
+      req.user = decoded;
+      next();
+    });
+  };
+  
+  // * Used for verifying the credentials -> Login Page
+  const verifyCred = async (req, res, next) => {
+    const { username, password } = req.body;
+  
+    if (!(username && password)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    } else {
+      const user = await User.findOne({username, password});
+      if (!user) user = await Organization.findOne({username, password});
+  
+      if (user) {
+        next();
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+    }
+  };

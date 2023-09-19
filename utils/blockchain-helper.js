@@ -1,3 +1,5 @@
+// * USE THIS FILE TO INTERACT WITH THE SMART CONTRACT
+
 const hre = require("hardhat");
 require("dotenv").config();
 
@@ -546,7 +548,7 @@ const contractAbi= [
 
 const addMinter = async (_minterAddress, _detailsURI) => {
     const provider = new hre.ethers.JsonRpcProvider('http://127.0.0.1:8545');
-    const smartContractAddress = process.env.SMARTCONTRACT_ADDRESS;
+    const smartContractAddress = process.env.CONTRACT_ADDRESS;
     const signer = await provider.getSigner();
     const contract = new hre.ethers.Contract(smartContractAddress, contractAbi, signer);
     try{

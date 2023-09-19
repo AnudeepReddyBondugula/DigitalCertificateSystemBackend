@@ -4,16 +4,28 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const fileUpload = require('express-fileupload')
+const path = require('path')
 const {
   getPublicKey,
   getAddress,
   encrypt,
   decrpyt,
+  encryptWithPublicKey,
+  decryptWithPrivateKey,
+  getHash
 } = require("./utils/crypto-helper");
+
+const {
+  saveData,
+  getData
+} = require("./utils/ipfs-helper");
 
 const {
     addMinter
 } = require("./utils/blockchain-helper");
+const fs = require('fs');
+
 require("dotenv").config();
 
 // * Creating Server
@@ -22,19 +34,22 @@ const port = 3000;
 
 // * Schemas
 const userSchema = new mongoose.Schema({
-  username: String,
+  email: String,
   password: String,
-  publicaddress: String,
   privatekey: String,
-  aadharcard: String, 
-  certificates: [String], // ? optional
+  publickey : String,
+  publicaddress: String,
+  fullname: String,
+  aadharcard: String,
 });
 
 const organizationSchema = new mongoose.Schema({
-  username: String,
+  email: String,
   password: String,
-  publicaddress: String,
   privatekey: String,
+  publickey : String,
+  publicaddress: String,
+  fullname : String,
 });
 
 // * Define mongoose models
@@ -71,14 +86,13 @@ const verifyToken = async (req, res, next) => {
 
 // * Used for verifying the credentials -> Login Page
 const verifyCred = async (req, res, next) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!(username && password)) {
+  if (!(email && password)) {
     return res.status(401).json({ message: "Unauthorized" });
   } else {
-    const user = await (req.body.role == "student"
-      ? User.findOne({ username, password })
-      : Organization.findOne({ username, password }));
+    let user = await User.findOne({email, password});
+    if (!user) user = await Organization.findOne({email, password});
 
     if (user) {
       next();
@@ -91,64 +105,61 @@ const verifyCred = async (req, res, next) => {
 // * Routes
 
 // ** USER ROUTES
-app.post("/user/login", verifyCred, async (req, res) => {
-  const token = jwt.sign({ username: req.body.username }, process.env.SECRET, {
-    expiresIn: "1h",
-  });
-
-  res.json({ message: "Login Success!", token: token });
-});
 
 app.post("/user/signup", async (req, res) => {
-  const { username, password, privatekey, aadharcard } = req.body;
+  const { email, password, privatekey, aadharcard, name } = req.body;
 
-  if (!(username && password && privatekey && aadharcard)) {
-    res.status(401).json({ message: "Unauthorized" });
+  if (!(email && password && privatekey && aadharcard && name)) {
+    res.status(401).json({ message: "Invalid Inputs" });
     return;
   }
   // TODO: Validate for username, privateKey and aadharcard later
 
   // * Check if user aldready exists!
   // ? validate also for users having same public address(optional)
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ email });
   if (user) {
     return res.status(401).json({ message: "User Aldready Exists!" });
   }
-  const publicaddress = getAddress(getPublicKey(privatekey));
+  const publickey = getPublicKey(privatekey);
+  const publicaddress = getAddress(publickey);
   const cipherText = encrypt(privatekey, password);
   const newUser = new User({
-    username,
+    email,
     password,
-    publicaddress,
     privatekey: cipherText,
+    publickey,
+    publicaddress,
     aadharcard,
+    fullname : name
   });
 
   await newUser.save();
 
-  const token = jwt.sign({ username }, process.env.SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ email, role : "student" }, process.env.SECRET, { expiresIn: "1h" });
 
   res.status(201).json({ message: "User Created Successfully", token: token });
 });
-
-app.get("/user/dashboard", verifyToken, async (req, res) => {
-  const { username } = req.body;
-  res.json({ message: "DashBoard Success!", user: req.user });
-});
-
-// * ORGANISATION ROUTES
-app.post("/org/login", verifyCred, async (req, res) => {
-  const token = jwt.sign({ username: req.body.username }, process.env.SECRET, {
+app.post("/user/login", verifyCred, async (req, res) => {
+  const token = jwt.sign({ email: req.body.email, role : "student" }, process.env.SECRET, {
     expiresIn: "1h",
   });
 
   res.json({ message: "Login Success!", token: token });
 });
 
+app.get("/user/dashboard", verifyToken, async (req, res) => {
+  const { email } = req.body;
+  const user = User.findOne({email});
+
+  res.json({name: user.name, publicaddress : user.publicaddress});
+});
+
+// * ORGANISATION ROUTES
 app.post("/org/signup", async (req, res) => {
     try{
-        const { username, password, privatekey } = req.body;
-        if (!(username && password && privatekey)) {
+        const { email, password, privatekey, name } = req.body;
+        if (!(email && password && privatekey && name)) {
             res.status(401).json({ message: "Unauthorized" });
             return;
         }
@@ -157,22 +168,25 @@ app.post("/org/signup", async (req, res) => {
     
         // * Check if user aldready exists!
         // ? validate also for users having same public address(optional)
-        const user = await Organization.findOne({ username });
+        const user = await Organization.findOne({ email });
         if (user) {
             return res.status(401).json({ message: "User Aldready Exists!" });
         }
-        const publicaddress = getAddress(getPublicKey(privatekey));
+        const publickey = getPublicKey(privatekey);
+        const publicaddress = getAddress(publickey);
         const cipherText = encrypt(privatekey, password);
         const newUser = new Organization({
-            username,
+            email,
             password,
-            publicaddress,
             privatekey: cipherText,
+            publickey,
+            publicaddress,
+            fullname : name
         });
 
         await newUser.save();
 
-        const token = jwt.sign({ username }, process.env.SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ email, role : "organization" }, process.env.SECRET, { expiresIn: "1h" });
 
         await addMinter(publicaddress, "These consists of details of the Organization");
   
@@ -182,6 +196,77 @@ app.post("/org/signup", async (req, res) => {
         res.status(500).json("Internal Server Error!");
     }
 });
+
+app.post("/org/login", verifyCred, async (req, res) => {
+  const token = jwt.sign({ email: req.body.email }, process.env.SECRET, {
+    expiresIn: "1h",
+  });
+
+  res.json({ message: "Login Success!", token: token });
+});
+
+app.post("/org/mint", verifyToken, async(req, res) => {
+  const {file, student_address, student_email, student_name} = req.body;
+  if (!(file && student_address)){
+    res.status(401).json({message : "Invalid certificate or student address!"});
+    return;
+  }
+  else{
+    const user = await User.findOne({publicaddress: student_address})
+    if (!user){
+      res.status(401).json({message : "Invalid certificate or student address!"});
+      return;
+    }
+    const fileHash = await getHash(file);
+    const encryptedFile = JSON.stringify(await encryptWithPublicKey(user.publickey, file));
+    const certificate_cid = await saveData(encryptedFile);
+    const metaData = {
+      hash : fileHash,
+      certificate_cid,
+      issuer_publicaddress : undefined,
+      recipient_publicaddress : undefined
+    }
+
+    const metadata_cid = await saveData(JSON.stringify(metaData));
+    res.json({message : "Certificate Minted Successfully!", metadata_cid});
+  }
+})
+
+// * Used to get the smart contract address for frontend Dapp
+
+app.get("/getcontractaddress",verifyToken, async (req, res) => {
+  res.json({contractAddress : process.env.CONTRACT_ADDRESS});
+})
+
+app.get("/getcontractabi", verifyToken, async (req, res)=> {
+  fs.readFile(__dirname + '/artifacts/contracts/DigiCert.sol/DigiCert.json', 'utf-8', (err, data) => {
+    if (err){
+      console.log("Error reading JSON File:", err);
+      res.status(500).json();
+      return;
+    }
+    else{
+      try{
+        const jsonData = JSON.parse(data);
+        res.json({
+          contractAbi: jsonData.abi
+        })
+      }
+      catch(err){
+        console.log('Error in parsing', err);
+        res.status(500).json();
+      }
+    }
+  })
+})
+
+app.post("/upload", fileUpload({ createParentPath : true}), (req, res) => {
+  // const files = req.files
+  // console.log(files);
+  res.json({message : "Hello!"});
+})
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
