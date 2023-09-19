@@ -205,20 +205,21 @@ app.post("/org/login", verifyCred, async (req, res) => {
   res.json({ message: "Login Success!", token: token });
 });
 
-app.post("/org/mint", verifyToken, async(req, res) => {
-  const {file, student_address, student_email, student_name} = req.body;
-  if (!(file && student_address)){
+app.post("/org/mint", verifyToken, fileUpload({ createParentPath : true}),  async(req, res) => {
+  const certificateFile = req.files.certificateFile.data;
+  const {student_address, student_email, student_name} = req.body;
+  if (!(certificateFile && student_address)){
     res.status(401).json({message : "Invalid certificate or student address!"});
     return;
   }
   else{
     const user = await User.findOne({publicaddress: student_address})
     if (!user){
-      res.status(401).json({message : "Invalid certificate or student address!"});
+      res.status(401).json({message : "Invalid student address!"});
       return;
     }
-    const fileHash = await getHash(file);
-    const encryptedFile = JSON.stringify(await encryptWithPublicKey(user.publickey, file));
+    const fileHash = await getHash(certificateFile);
+    const encryptedFile = JSON.stringify(await encryptWithPublicKey(user.publickey, certificateFile));
     const certificate_cid = await saveData(encryptedFile);
     const metaData = {
       hash : fileHash,
@@ -234,11 +235,11 @@ app.post("/org/mint", verifyToken, async(req, res) => {
 
 // * Used to get the smart contract address for frontend Dapp
 
-app.get("/getcontractaddress",verifyToken, async (req, res) => {
+app.get("/getcontractaddress", async (req, res) => {
   res.json({contractAddress : process.env.CONTRACT_ADDRESS});
 })
 
-app.get("/getcontractabi", verifyToken, async (req, res)=> {
+app.get("/getcontractabi", async (req, res)=> {
   fs.readFile(__dirname + '/artifacts/contracts/DigiCert.sol/DigiCert.json', 'utf-8', (err, data) => {
     if (err){
       console.log("Error reading JSON File:", err);
