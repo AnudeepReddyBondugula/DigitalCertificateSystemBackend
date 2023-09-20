@@ -24,10 +24,12 @@ async function saveData(file) {
 // * Retrieves the content from the IPFS for the respective hash (CID)
 async function getData(hash){
     const ipfs = await getIpfsClient();
+    let accumalatedBuffer = []
     const content = ipfs.cat(hash);
     for await (const itr of content){
-        console.log(Buffer.from(itr).toString());
+        accumalatedBuffer.push(Buffer.from(itr));
     }
+    return Buffer.concat(accumalatedBuffer);
 }
 
 module.exports = {getIpfsClient, saveData, getData};

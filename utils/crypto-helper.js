@@ -4,6 +4,7 @@ const Buffer = require('buffer').Buffer;
 const CryptoJS = require('crypto-js');
 const EthCrypto = require('eth-crypto');
 const crypto = require('crypto');
+const fs = require('fs');
 
 function getPublicKey(privateKey){
     const secp256k1 = new ec('secp256k1');
@@ -30,10 +31,24 @@ function decrpyt(_cipherText, _password){
     return CrpytoJS.AES.decrpyt(_cipherText, _password).toString(CryptoJS.enc.Utf8);
 }
 
-function getHash(data) {
-    const hashSum = crypto.createHash('sha256');
-    hashSum.update(data);
-    return hashSum.digest('hex');
+function getPDFHash(pdfFilePath) {
+    return new Promise((resolve, reject) => {
+        const pdfStream = fs.createReadStream(pdfFilePath);
+        const hash = crypto.createHash('sha256');
+    
+        pdfStream.on('data', (data) => {
+          hash.update(data);
+        });
+    
+        pdfStream.on('end', () => {
+          const hashValue = hash.digest('hex');
+          resolve(hashValue);
+        });
+    
+        pdfStream.on('error', (error) => {
+          reject(error);
+        });
+      });
 }
 
 async function encryptWithPublicKey(publicKey, data) {
@@ -49,7 +64,7 @@ module.exports = {
   getAddress,
   encrypt,
   decrpyt,
-  getHash,
+  getPDFHash,
   encryptWithPublicKey,
   decryptWithPrivateKey,
 };

@@ -6,6 +6,7 @@ async function main() {
   await digiCert.waitForDeployment();
 
   console.log("SmartContract address: ", digiCert.target);
+  console.log("DON'T FORGET TO UPDATE THE CONTRACT ABI AND SMART CONTRACT IN THE ENV")
 }
 
 main().catch((error) => {

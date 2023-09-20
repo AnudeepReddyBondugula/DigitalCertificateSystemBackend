@@ -47,6 +47,19 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
         emit DetailsURIUpdated(msg.sender, _detailsURI);
     }
 
+    function getNFTs(address addr) public view returns (string[] memory) {
+        string[] memory result = new string[](balanceOf(addr));
+        uint x = 0;
+        uint256 tokenId = _tokenIdCounter.current();
+        for(uint i = 0; i < tokenId; i++){
+            if (addr == ownerOf(i)){
+                result[x] = tokenURI(i);
+                x = x + 1;
+            }
+        }
+        return result;
+    }
+
 
 
     //* The following functions are overrides required by Solidity.

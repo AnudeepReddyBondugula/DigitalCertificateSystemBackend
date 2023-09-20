@@ -13,7 +13,7 @@ const {
   decrpyt,
   encryptWithPublicKey,
   decryptWithPrivateKey,
-  getHash
+  getPDFHash
 } = require("./utils/crypto-helper");
 
 const {
@@ -24,7 +24,12 @@ const {
 const {
     addMinter
 } = require("./utils/blockchain-helper");
+
+const {
+  getCertificatesData
+} = require("./utils/helpers");
 const fs = require('fs');
+
 
 require("dotenv").config();
 
@@ -41,6 +46,9 @@ const userSchema = new mongoose.Schema({
   publicaddress: String,
   fullname: String,
   aadharcard: String,
+  notifications : [Object],
+  approve_requests : [Object]
+
 });
 
 const organizationSchema = new mongoose.Schema({
@@ -50,6 +58,8 @@ const organizationSchema = new mongoose.Schema({
   publickey : String,
   publicaddress: String,
   fullname : String,
+  notifications : [Object],
+  approve_responses : [Object]
 });
 
 // * Define mongoose models
@@ -74,12 +84,16 @@ const verifyToken = async (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET, async (err, decoded) => {
     if (err) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-
-    req.user = decoded;
+    if (decoded.role == "student"){
+      req.user = await User.findOne({email : decoded.email});
+    }
+    else{
+      req.user = await Organization.findOne({email : decoded.email});
+    }
     next();
   });
 };
@@ -152,8 +166,16 @@ app.get("/user/dashboard", verifyToken, async (req, res) => {
   const { email } = req.body;
   const user = User.findOne({email});
 
+  // ! Send number of approve requests and any new notifications to the user (You have recieved a new certificate)
+
   res.json({name: user.name, publicaddress : user.publicaddress});
 });
+
+app.get("/user/notifications", verifyToken, async(req, res) => {
+  const {publicaddress} = req;
+  const certificates = getCertificates(publicaddress);
+  return res.json(certificates);
+})
 
 // * ORGANISATION ROUTES
 app.post("/org/signup", async (req, res) => {
@@ -198,7 +220,7 @@ app.post("/org/signup", async (req, res) => {
 });
 
 app.post("/org/login", verifyCred, async (req, res) => {
-  const token = jwt.sign({ email: req.body.email }, process.env.SECRET, {
+  const token = jwt.sign({ email: req.body.email, role: "organization" }, process.env.SECRET, {
     expiresIn: "1h",
   });
 
@@ -206,31 +228,67 @@ app.post("/org/login", verifyCred, async (req, res) => {
 });
 
 app.post("/org/mint", verifyToken, fileUpload({ createParentPath : true}),  async(req, res) => {
-  const certificateFile = req.files.certificateFile.data;
-  const {student_address, student_email, student_name} = req.body;
+  const certificateFile = req.files.certificateFile;
+  const {certificate_name, student_address, student_email, student_name, issue_date, expire_date} = req.body;
   if (!(certificateFile && student_address)){
     res.status(401).json({message : "Invalid certificate or student address!"});
     return;
   }
   else{
-    const user = await User.findOne({publicaddress: student_address})
+    let user = await User.findOne({publicaddress: student_address});
+    if (!user) user = await User.findOne({email : student_email});
     if (!user){
       res.status(401).json({message : "Invalid student address!"});
       return;
     }
-    const fileHash = await getHash(certificateFile);
-    const encryptedFile = JSON.stringify(await encryptWithPublicKey(user.publickey, certificateFile));
+    const fileHash = await getPDFHash(certificateFile.data);
+
+    const encryptedFile = JSON.stringify(await encryptWithPublicKey(user.publickey, certificateFile.data));
     const certificate_cid = await saveData(encryptedFile);
     const metaData = {
       hash : fileHash,
       certificate_cid,
-      issuer_publicaddress : undefined,
-      recipient_publicaddress : undefined
+      issuer_publicaddress : req.user.publicaddress,
+      issuedBy: req.user.fullname,
+      issuedDate : issue_date,
+      expireDate : expire_date,
+      recipient_publicaddress : user.publicaddress,
+      certificate_name,
+      student_name
     }
 
     const metadata_cid = await saveData(JSON.stringify(metaData));
     res.json({message : "Certificate Minted Successfully!", metadata_cid});
   }
+})
+
+app.post("/org/verifycert", verifyToken, async (req, res) => {
+  const {student_address, student_email, description} = req.body;
+  if (!(student_address && student_email && description)){
+    res.status(401).json({message : "Unauthorized!"});
+    return;
+  }
+  const student = await User.findOne({email : student_email})
+  if (!student){
+    res.status(401).json({message : "Invalid User!"});
+    return;
+  }
+
+  const {email} = req.user;
+  const user = await Organization.findOne({email});
+  const notification = {
+    name : user.name,
+    email : user.email,
+    description : description
+  }
+
+  await User.updateOne({student_email : email}, {
+    $set : {
+      notifications : [...user.notifications, notification]
+    }
+  })
+
+  return res.json(notification);
 })
 
 // * Used to get the smart contract address for frontend Dapp
@@ -261,10 +319,30 @@ app.get("/getcontractabi", async (req, res)=> {
   })
 })
 
-app.post("/upload", fileUpload({ createParentPath : true}), (req, res) => {
-  // const files = req.files
-  // console.log(files);
-  res.json({message : "Hello!"});
+app.get("/profile", async(req, res) => {
+  const {email, publicaddress} = req.body;
+  if (!(email || publicaddress)){
+    res.status(401).json({message : "Invalid Inputs"})
+  }
+
+  let user = await User.findOne(email ? email : publicaddress);
+  if (!user) user = await Organization.findOne(email ? email : publicaddress);
+
+  res.json({
+    // TODO : send ID also
+    email : user.email,
+    name : user.name,
+    publicaddress : user.publicaddress
+  })
+  
+})
+
+app.get("/getCertificates", verifyToken, async(req, res) => {
+  let {student_address} = req.body;
+  if (!student_address){
+    student_address = req.user.publicaddress;
+  }
+  return res.json(await getCertificatesData(student_address));
 })
 
 
