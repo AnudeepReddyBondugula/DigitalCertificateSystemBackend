@@ -13,4 +13,13 @@ const getCertificatesData = async (publicaddress) => {
 
 }
 
-module.exports = {getCertificatesData};
+const moveFileAsync = async (certificateFile, uploadPath) => {
+    new Promise((resolve, reject) => {
+        certificateFile.mv(uploadPath, function (err){
+            if (err) reject(err)
+            else resolve("File Uploaded SuccessFully!");
+        })
+    })
+}
+
+module.exports = {getCertificatesData, moveFileAsync};

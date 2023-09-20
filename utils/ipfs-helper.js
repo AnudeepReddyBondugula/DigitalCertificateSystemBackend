@@ -1,4 +1,6 @@
 const {create} = require("ipfs-http-client")
+const fs = require('fs');
+const fileUpload = require("express-fileupload");
 
 async function getIpfsClient() {
     const ipfs = await create(
@@ -32,4 +34,11 @@ async function getData(hash){
     return Buffer.concat(accumalatedBuffer);
 }
 
-module.exports = {getIpfsClient, saveData, getData};
+async function saveFile(filePath) {
+    const pdfBuffer = fs.readFileSync(filePath);
+    const ipfs = await getIpfsClient();
+    const result = await ipfs.add(pdfBuffer)
+    return result.path;
+}
+
+module.exports = {getIpfsClient, saveData, getData, saveFile};

@@ -16,7 +16,7 @@ const addMinter = async (_minterAddress, _detailsURI) => {
         const tx = await contract.addMinter(_minterAddress, _detailsURI);
         await tx.wait();
         console.log('Transaction hash:', tx.hash);
-        console.log('Minter added successfully.');
+        console.log('Minter added successfully. ' + _minterAddress);
         return tx.hash;
     }
     catch(err){

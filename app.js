@@ -18,7 +18,8 @@ const {
 
 const {
   saveData,
-  getData
+  getData,
+  saveFile
 } = require("./utils/ipfs-helper");
 
 const {
@@ -26,7 +27,7 @@ const {
 } = require("./utils/blockchain-helper");
 
 const {
-  getCertificatesData
+  getCertificatesData, moveFileAsync
 } = require("./utils/helpers");
 const fs = require('fs');
 
@@ -241,10 +242,14 @@ app.post("/org/mint", verifyToken, fileUpload({ createParentPath : true}),  asyn
       res.status(401).json({message : "Invalid student address!"});
       return;
     }
-    const fileHash = await getPDFHash(certificateFile.data);
+    const uploadPath = __dirname+ "/tmp/" + certificateFile.name;
 
-    const encryptedFile = JSON.stringify(await encryptWithPublicKey(user.publickey, certificateFile.data));
-    const certificate_cid = await saveData(encryptedFile);
+    await moveFileAsync(certificateFile, uploadPath);
+
+    const fileHash = await getPDFHash(uploadPath);
+
+    const certificate_cid = await saveFile(uploadPath);
+
     const metaData = {
       hash : fileHash,
       certificate_cid,
@@ -343,6 +348,20 @@ app.get("/getCertificates", verifyToken, async(req, res) => {
     student_address = req.user.publicaddress;
   }
   return res.json(await getCertificatesData(student_address));
+})
+
+app.post("/downloadCertificate", verifyToken, async(req, res) => {
+  const {certificate_cid} = req.body;
+  const uploadPath = __dirname + "/tmp/" + certificate_cid + ".pdf";
+  const pdfBuffer = await getData(certificate_cid);
+  fs.writeFileSync(uploadPath, pdfBuffer, null);
+  res.download(uploadPath, function(err){
+    if(err){
+      console.log("Error in sending file");
+    } else{
+      console.log("File Sent SuccessFully!");
+    }
+  })
 })
 
 
