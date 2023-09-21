@@ -15,6 +15,8 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
     // All Organization addresses and their details are stored here
     mapping(address => string) private _minters;
 
+    mapping(uint256 => address) public creators;
+
     
 
     constructor() ERC721("DigiCert", "SIH") {}
@@ -30,6 +32,7 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+        creators[tokenId] = msg.sender;
     }
 
     function burn(uint256 _tokenID) public{
