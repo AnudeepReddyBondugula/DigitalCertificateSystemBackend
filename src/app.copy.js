@@ -36,36 +36,8 @@ require("dotenv").config();
 
 // * Creating Server
 const app = express();
-const port = 3000;
 
-// * Schemas
-const userSchema = new mongoose.Schema({
-  email: String,
-  password: String,
-  privatekey: String,
-  publickey : String,
-  publicaddress: String,
-  fullname: String,
-  aadharcard: String,
-  notifications : [Object],
-  approve_requests : [Object]
 
-});
-
-const organizationSchema = new mongoose.Schema({
-  email: String,
-  password: String,
-  privatekey: String,
-  publickey : String,
-  publicaddress: String,
-  fullname : String,
-  notifications : [Object],
-  approve_responses : [Object]
-});
-
-// * Define mongoose models
-const User = mongoose.model("User", userSchema);
-const Organization = mongoose.model("Organization", organizationSchema);
 
 // * Connecting to MongoDB
 mongoose.connect(
@@ -365,7 +337,4 @@ app.post("/downloadCertificate", verifyToken, async(req, res) => {
 })
 
 
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+module.exports = app;
