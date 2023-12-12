@@ -1,9 +1,8 @@
 const { getUser } = require("../../utils/helpers");
-const jwt = require("jsonwebtoken")
+const {generateToken} = require("./generateToken");
 require("dotenv").config();
 
 async function loginHandler(req, res) {
-    console.log("POST : /login ");
     try{
         const {username, password} = req.body;
         if (!username || !password){
@@ -19,11 +18,11 @@ async function loginHandler(req, res) {
                 message : "Unauthorized!"
             });
         }
+        const jwtoken = generateToken({username, role}, process.env.SECRET)
 
-        const jwtoken = jwt.sign({username : user.username, role : user.role}, process.env.SECRET, {expiresIn : '1h'})
         res.status(200).json({
-            jwtoken : jwtoken,
-            role : user.role
+            jwtoken,
+            role
         })
         console.log("[SUCCESS] Login Successfull !")
     }
