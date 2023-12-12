@@ -3,9 +3,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 
 const indexRouter = require("./routes/index");
-const userRouter = require("./routes/users");
-const organizationRouter = require("./routes/organizations");
 const adminRouter = require("./routes/admin");
+
+const { logger } = require("./middlewares/logger");
+
 const app = express();
 
 app.use(cors({
@@ -13,10 +14,14 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
-
+// app.use(logger);
 app.use("/", indexRouter);
-app.use("/users", userRouter);
-app.use("/organization", organizationRouter);
 app.use("/admin", adminRouter);
+
+app.use("*", (req, res) => {
+  res.status(404).json({
+    message : "Page Not Found!"
+  })
+})
 
 module.exports = app;

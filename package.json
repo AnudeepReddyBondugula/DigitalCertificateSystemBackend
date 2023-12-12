@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./src/index.js",
-    "dev": "nodemon ./src/index.js"
+    "dev": "nodemon ./src/index.js",
+    "hardhat": "npx hardhat node",
+    "newHardhat": "npx hardhat clean && npx hardhat node",
+    "smartContract": "npx hardhat run --network hardhat ./scripts/deploy.js"
   },
   "keywords": [],
   "author": "",
@@ -27,9 +30,9 @@
     "mongoose": "^7.5.0"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@openzeppelin/contracts": "^4.9.3",
-    "hardhat": "^2.17.3",
+    "hardhat": "^2.19.2",
     "nodemon": "^3.0.1"
   }
 }

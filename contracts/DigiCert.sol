@@ -13,54 +13,73 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIdCounter;
 
     // All Organization addresses and their details are stored here
-    mapping(address => string) private _minters;
+    mapping(address => string) public minters;
+    
+    mapping(address => uint[]) public creators;
 
-    mapping(uint256 => address) public creators;
+    mapping(address => uint[]) public users;
 
     
 
-    constructor() ERC721("DigiCert", "SIH") {}
+    constructor() ERC721("DigiCert", "AU") {}
 
-    function addMinter(address _addr, string memory _detailsURI) public onlyOwner {
+    function addMinter(address _addr, string calldata _detailsURI) external onlyOwner {
         require(!compareStrings(_detailsURI, ""), "Require Details URI");
-        _minters[_addr] = _detailsURI;
+        require(compareStrings(minters[_addr], ""), "Minter added aldready");
+        minters[_addr] = _detailsURI;
         emit MinterAdded(_addr, _detailsURI);
     }
 
-    function safeMint(address to, string memory uri) public onlyMinter {
+    function safeMint(address _to, string calldata _uri) external isMinter(msg.sender)  {
+
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-        creators[tokenId] = msg.sender;
+
+        _safeMint(_to, tokenId);
+        _setTokenURI(tokenId, _uri);
+
+        creators[msg.sender].push(tokenId);
+        users[_to].push(tokenId);
+
+        emit NFTMinted(msg.sender, _to, _uri);
     }
 
-    function burn(uint256 _tokenID) public{
-        address addr = ownerOf(_tokenID);
-        require(addr == msg.sender || msg.sender == owner() , "Unauthorized!");
-        _burn(_tokenID);
+    function burn(uint256 _tokenID) external isMinter(msg.sender) {
+        require(isCreatorOf(msg.sender, _tokenID), "Unauthorized! Error: Not the Creator/Issuer of NFT");
+        _burn(_tokenID); // Need to check if burn twice or more
+        
     }
 
-    function getMinterDetails(address _addr) public view returns (string memory){
-        return _minters[_addr];
+    function updateDetails(address _addr, string calldata _detailsURI) external onlyOwner {
+        minters[_addr] = _detailsURI;
+        emit DetailsURIUpdated(_addr, _detailsURI);
     }
 
-    function updateDetails(string memory _detailsURI) public onlyMinter{
-        _minters[msg.sender] = _detailsURI;
-        emit DetailsURIUpdated(msg.sender, _detailsURI);
-    }
 
-    function getNFTs(address addr) public view returns (string[] memory) {
-        string[] memory result = new string[](balanceOf(addr));
-        uint x = 0;
-        uint256 tokenId = _tokenIdCounter.current();
-        for(uint i = 0; i < tokenId; i++){
-            if (addr == ownerOf(i)){
-                result[x] = tokenURI(i);
-                x = x + 1;
-            }
+    function getUserNFTs(address _addr) external view returns (string[] memory) {
+        string[] memory result = new string[](balanceOf(_addr)); // * balanceOf(addr) -> Represents the # of tokens owned by that address
+        uint[] memory arr = users[_addr];
+        for(uint i = 0; i < arr.length; i++){
+            result[i] = tokenURI(arr[i]);
         }
         return result;
+    }
+
+    function getCreatorNFTs(address _addr) external view returns (string[] memory) {
+        uint[] memory tokenIds_arr = creators[_addr];
+        string[] memory result = new string[](tokenIds_arr.length);
+        for(uint i = 0; i < tokenIds_arr.length; i++){
+            result[i] = tokenURI(i);
+        }
+        return result;
+    }
+
+    function isCreatorOf(address _addr, uint _tokenID) public view returns (bool) {
+        uint[] memory tokenIDs = creators[_addr];
+        for(uint i = 0; i < tokenIDs.length; i++){
+            if (tokenIDs[i] == _tokenID) return true;
+        }
+        return false;
     }
 
 
@@ -83,14 +102,15 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
 
     //* Modifiers
 
-    modifier onlyMinter() {
-        require(!compareStrings(_minters[msg.sender], ""), "Not a Minter");
+    modifier isMinter(address _addr) {
+        require(!compareStrings(minters[_addr], ""), "Unauthorized!, Not a Minter");
         _;
     }
 
     // * Events
 
     event MinterAdded(address indexed minterAddress, string indexed detailsURI);
+    event NFTMinted(address indexed from, address indexed to, string indexed metadata);
     event DetailsURIUpdated(address indexed minterAddress, string indexed detailsURI);
 
 

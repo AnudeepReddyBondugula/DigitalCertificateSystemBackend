@@ -1,6 +1,11 @@
 const app = require("./app");
-const {PORT} = require("./config/serverConfig")
+const {PORT} = require("./config/serverConfig");
+const connectMongodb = require("./config/dbConfig");
 
-app.listen(PORT, () => {
-    console.log(`Server is running on PORT: ${PORT}`)
+connectMongodb()
+.then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on PORT: ${PORT}`)
+    })
 })
+    

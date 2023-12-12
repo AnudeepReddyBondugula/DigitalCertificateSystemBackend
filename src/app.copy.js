@@ -38,167 +38,19 @@ require("dotenv").config();
 const app = express();
 
 
-
-// * Connecting to MongoDB
-mongoose.connect(
-  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.b02wbxn.mongodb.net/digicert`,
-  { useNewUrlParser: true, useUnifiedTopology: true }
-);
-
 //* Middlewares
 app.use(cors());
 app.use(bodyParser.json());
 
 // * Verifies the user JWToken -> Used for protected Pages
-const verifyToken = async (req, res, next) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  jwt.verify(token, process.env.SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    if (decoded.role == "student"){
-      req.user = await User.findOne({email : decoded.email});
-    }
-    else{
-      req.user = await Organization.findOne({email : decoded.email});
-    }
-    next();
-  });
-};
 
 // * Used for verifying the credentials -> Login Page
-const verifyCred = async (req, res, next) => {
-  const { email, password } = req.body;
 
-  if (!(email && password)) {
-    return res.status(401).json({ message: "Unauthorized" });
-  } else {
-    let user = await User.findOne({email, password});
-    if (!user) user = await Organization.findOne({email, password});
-
-    if (user) {
-      next();
-    } else {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-  }
-};
 
 // * Routes
 
 // ** USER ROUTES
 
-app.post("/user/signup", async (req, res) => {
-  const { email, password, privatekey, aadharcard, name } = req.body;
-
-  if (!(email && password && privatekey && aadharcard && name)) {
-    res.status(401).json({ message: "Invalid Inputs" });
-    return;
-  }
-  // TODO: Validate for username, privateKey and aadharcard later
-
-  // * Check if user aldready exists!
-  // ? validate also for users having same public address(optional)
-  const user = await User.findOne({ email });
-  if (user) {
-    return res.status(401).json({ message: "User Aldready Exists!" });
-  }
-  const publickey = getPublicKey(privatekey);
-  const publicaddress = getAddress(publickey);
-  const cipherText = encrypt(privatekey, password);
-  const newUser = new User({
-    email,
-    password,
-    privatekey: cipherText,
-    publickey,
-    publicaddress,
-    aadharcard,
-    fullname : name
-  });
-
-  await newUser.save();
-
-  const token = jwt.sign({ email, role : "student" }, process.env.SECRET, { expiresIn: "1h" });
-
-  res.status(201).json({ message: "User Created Successfully", token: token });
-});
-app.post("/user/login", verifyCred, async (req, res) => {
-  const token = jwt.sign({ email: req.body.email, role : "student" }, process.env.SECRET, {
-    expiresIn: "1h",
-  });
-
-  res.json({ message: "Login Success!", token: token });
-});
-
-app.get("/user/dashboard", verifyToken, async (req, res) => {
-  const { email } = req.body;
-  const user = User.findOne({email});
-
-  // ! Send number of approve requests and any new notifications to the user (You have recieved a new certificate)
-
-  res.json({name: user.name, publicaddress : user.publicaddress});
-});
-
-app.get("/user/notifications", verifyToken, async(req, res) => {
-  const {publicaddress} = req;
-  const certificates = getCertificates(publicaddress);
-  return res.json(certificates);
-})
-
-// * ORGANISATION ROUTES
-app.post("/org/signup", async (req, res) => {
-    try{
-        const { email, password, privatekey, name } = req.body;
-        if (!(email && password && privatekey && name)) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
-        }
-        
-        // TODO: Validate for username, privateKey later
-    
-        // * Check if user aldready exists!
-        // ? validate also for users having same public address(optional)
-        const user = await Organization.findOne({ email });
-        if (user) {
-            return res.status(401).json({ message: "User Aldready Exists!" });
-        }
-        const publickey = getPublicKey(privatekey);
-        const publicaddress = getAddress(publickey);
-        const cipherText = encrypt(privatekey, password);
-        const newUser = new Organization({
-            email,
-            password,
-            privatekey: cipherText,
-            publickey,
-            publicaddress,
-            fullname : name
-        });
-
-        await newUser.save();
-
-        const token = jwt.sign({ email, role : "organization" }, process.env.SECRET, { expiresIn: "1h" });
-
-        await addMinter(publicaddress, "These consists of details of the Organization");
-  
-        res.status(201).json({ message: "User Created Successfully", token: token });
-    }
-    catch(err){
-        res.status(500).json("Internal Server Error!");
-    }
-});
-
-app.post("/org/login", verifyCred, async (req, res) => {
-  const token = jwt.sign({ email: req.body.email, role: "organization" }, process.env.SECRET, {
-    expiresIn: "1h",
-  });
-
-  res.json({ message: "Login Success!", token: token });
-});
 
 app.post("/org/mint", verifyToken, fileUpload({ createParentPath : true}),  async(req, res) => {
   const certificateFile = req.files.certificateFile;

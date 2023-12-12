@@ -1,5 +1,8 @@
 const {getNFTs} = require('./blockchain-helper');
 const {getData} = require('./ipfs-helper');
+const Organization = require("../models/organization");
+const User = require("../models/user");
+
 
 const getCertificatesData = async (publicaddress) => {
     const tokenURIs = (await getNFTs(publicaddress)).toArray();
@@ -22,4 +25,21 @@ const moveFileAsync = async (certificateFile, uploadPath) => {
     })
 }
 
-module.exports = {getCertificatesData, moveFileAsync};
+const getUser = async (filter) => {
+    let user = await Organization.findOne(filter);
+    if (!user){
+        user = await User.findOne(filter);
+        if (user){
+            user.role = 'user';
+            return user;
+        }
+        else return null;
+    }
+    else {
+        user.role = 'organization';
+        return user;
+    }
+}
+
+
+module.exports = {getUser};
