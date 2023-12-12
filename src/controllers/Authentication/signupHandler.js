@@ -1,8 +1,4 @@
-const { getRandomKeysAndAddresses } = require("../../utils/crypto-helper");
 const { getUser } = require("../../utils/helpers");
-const User = require("../../models/user");
-const Organization = require("../../models/organization");
-const { addMinter } = require("../../utils/blockchain-helper");
 
 const signupHandler = async (req, res) => {
     try{
