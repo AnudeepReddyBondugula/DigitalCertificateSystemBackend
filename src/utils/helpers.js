@@ -30,14 +30,14 @@ const getUser = async (filter) => {
     if (!user){
         user = await User.findOne(filter);
         if (user){
-            user.role = 'user';
-            return user;
+            // user.role = 'user';
+            return {user, role : "user"};
         }
         else return null;
     }
     else {
-        user.role = 'organization';
-        return user;
+        // user.role = 'organization';
+        return {user, role : "organization"};
     }
 }
 
