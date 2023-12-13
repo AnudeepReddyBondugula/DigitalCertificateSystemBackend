@@ -1,4 +1,4 @@
-const {provider, getContractInstance, contractAddress, contractABI} = require("../config/smartContractConfig")
+const {getContractInstance} = require("../config/smartContractConfig")
 require("dotenv").config();
 
 
@@ -68,9 +68,6 @@ const mintNFT = async (fromPrivateKey, toWalletAddress, uri) => {
         return null;
     }
 }
-
-
-
 
 module.exports = {
     getUserNFTsTokenIDs,
