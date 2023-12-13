@@ -1,4 +1,4 @@
-﻿# Blockchain-Based Certificate Management System
+﻿# DigitalCertificateSystemBackend
 
 ## Abstract 
 
@@ -7,15 +7,9 @@ In the rapidly evolving digital landscape, the need for a secure and transparent
 
 ## Technology Stack
 
-1) React
- 
-2) NodeJS
+1) NodeJS
+  
+2) MongoDB
 
-3) EtherJS
-
-4) MongoDB
-
-5) Ethereum
-
-6) IPFS (InterPlanetary File System)
+3) IPFS (InterPlanetary File System)
 
