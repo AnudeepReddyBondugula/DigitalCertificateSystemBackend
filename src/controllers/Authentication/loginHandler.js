@@ -18,6 +18,7 @@ async function loginHandler(req, res) {
                 message : "Unauthorized!"
             });
         }
+        const role = user.role;
         const jwtoken = generateToken({username, role}, process.env.SECRET)
 
         res.status(200).json({

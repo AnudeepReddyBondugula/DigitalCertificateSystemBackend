@@ -2,30 +2,51 @@ const User = require("../../models/user");
 const { getRandomKeysAndAddresses } = require("../../utils/crypto-helper");
 
 
-const createUser = async (req, res) => {
-    const {username, password, fullName, aadharNumber} = req.body;
-    let user = await User.findOne({aadharNumber}); // * Checking if the User aadharcard is aldready registered
+const createUser = async (body) => {
+    const {username, password, fullName, aadharNumber} = body;
+    if (!(username && password && fullName && aadharNumber)){
+        throw Error(JSON.stringify({
+            status : 403,
+            message : "Required Fields Are Empty!"
+        }));
+    }
+    
+    let user;
+
+    try{
+        user = await User.findOne({aadharNumber}); // * Checking if the User aadharcard is aldready registered
+    }catch(err){
+        throw Error(JSON.stringify({
+            status : 500,
+            message : "Internal Server Error"
+        }))
+    }
     if (user){
         console.log("[FAILED] User Aldready Exists!");
-        return res.status(403).json({
-            message : "Unauthorized!"
-        });
+        throw Error(JSON.stringify({
+            status : 403,
+            message : "User Already Exists"
+        }))
     }
-    const {privateKey, publicKey, walletAddress} = getRandomKeysAndAddresses();
-    user = await User({
-        username,
-        password,
-        fullName,
-        aadharNumber,
-        privateKey,
-        publicKey,
-        walletAddress
-    })
-
-    await user.save();
-    res.status(201).json({
-        message : "User Added Successfully!"
-    })
+    try{
+        const {privateKey, publicKey, walletAddress} = getRandomKeysAndAddresses();
+        user = await User({
+            username,
+            password,
+            fullName,
+            aadharNumber,
+            privateKey,
+            publicKey,
+            walletAddress
+        })
+        await user.save();
+    }catch(err){
+        throw Error(JSON.stringify({
+            status : 500,
+            message : "Internal Server Error"
+        }))
+    }
+    return true;
 }
 
 module.exports = {createUser};
