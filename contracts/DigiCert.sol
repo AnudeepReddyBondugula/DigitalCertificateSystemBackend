@@ -21,6 +21,8 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
     
     constructor() ERC721("DigiCert", "AU") {}
 
+// * State Change Methods
+
     function addMinter(address _addr, string calldata _detailsURI) external onlyOwner {
         require(!compareStrings(_detailsURI, ""), "Require Details URI");
         require(compareStrings(minters[_addr], ""), "Minter added aldready");
@@ -54,6 +56,17 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
     }
 
 
+
+// * Getter Methods
+
+    function getUserNFTtokenIDs(address _addr) external view returns (uint[] memory) {
+        return users[_addr];
+    }
+
+    function getCreatorsNFTtokenIDs(address _addr) external view returns (uint[] memory) {
+        return users[_addr];
+    }
+
     function getUserNFTs(address _addr) external view returns (string[] memory) {
         string[] memory result = new string[](balanceOf(_addr)); // * balanceOf(addr) -> Represents the # of tokens owned by that address
         uint[] memory arr = users[_addr];
@@ -63,7 +76,7 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
         return result;
     }
 
-    function getCreatorNFTs(address _addr) external view returns (string[] memory) {
+    function getCreatorNFTs(address _addr) external view isMinter(_addr) returns (string[] memory) {
         uint[] memory tokenIds_arr = creators[_addr];
         string[] memory result = new string[](tokenIds_arr.length);
         for(uint i = 0; i < tokenIds_arr.length; i++){
@@ -101,7 +114,7 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
     //* Modifiers
 
     modifier isMinter(address _addr) {
-        require(!compareStrings(minters[_addr], ""), "Unauthorized!, Not a Minter");
+        require(!compareStrings(minters[_addr], ""), "Not a Minter");
         _;
     }
 
