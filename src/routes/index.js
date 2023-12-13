@@ -1,8 +1,15 @@
 const express = require("express");
-const { loginHandler } = require("../controllers/Authentication/loginHandler");
-const { signupHandler } = require("../controllers/Authentication/signupHandler");
-const {verifyToken} = require("../controllers/Authentication/verifyToken");
-const {dashboardHandler} = require("../controllers/dashboardHandler");
+const { loginHandler, signupHandler } = require("../services/AuthenticationService");
+
+const { tokenVerification } = require("../middlewares/tokenVerificationMiddleware");
+const { onlyOrganization } = require("../middlewares/onlyOrganizationMiddleware");
+const { onlyUser } = require("../middlewares/onlyUserMiddleware");
+
+// TODO : Need to be implemented by Session Manager
+const {dashboardHandler} = require("../controllers/SessionControllers/dashboardHandler");
+const { digiLockerHandler } = require("../controllers/SessionControllers/digiLockerHandler");
+const { certificateVerificationHandler } = require("../controllers/SessionControllers/certificateVerificationHandler");
+const { issueCertificateHandler } = require("../controllers/SessionControllers/issueCertificateHandler");
 
 const router = express.Router();
 
@@ -14,6 +21,12 @@ router.post("/login", loginHandler);
 
 router.post("/signup", signupHandler);
 
-router.get("/dashboard", verifyToken, dashboardHandler);
+router.get("/dashboard", tokenVerification, dashboardHandler);
+
+router.post("/verify", tokenVerification, certificateVerificationHandler);
+
+router.post("/issue", tokenVerification, onlyOrganization, issueCertificateHandler);
+
+router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
 
 module.exports = router;
