@@ -4,12 +4,11 @@
   "description": "��#\u0000 \u0000D\u0000i\u0000g\u0000i\u0000t\u0000a\u0000l\u0000C\u0000e\u0000r\u0000t\u0000i\u0000f\u0000i\u0000c\u0000a\u0000t\u0000e\u0000S\u0000y\u0000s\u0000t\u0000e\u0000m\u0000B\u0000a\u0000c\u0000k\u0000e\u0000n\u0000d\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./src/index.js",
     "dev": "nodemon ./src/index.js",
     "hardhat": "npx hardhat node",
     "newHardhat": "npx hardhat clean && npx hardhat node",
-    "smartContract": "npx hardhat run --network hardhat ./scripts/deploy.js"
+    "deploySmartContract": "npx hardhat run --network localhost ./scripts/deploy.js"
   },
   "keywords": [],
   "author": "",

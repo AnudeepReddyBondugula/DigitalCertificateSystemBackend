@@ -1,11 +1,8 @@
 // * USE THIS FILE TO INTERACT WITH THE SMART CONTRACT
 
 const hre = require("hardhat");
+const {provider, contractAddress, contractAbi} = require("../config/smartContractConfig");
 require("dotenv").config();
-
-const contractAbi= process.env.CONTRACT_ABI;
-
-
 
 const addMinter = async (_minterAddress, _detailsURI) => {
     const provider = new hre.ethers.JsonRpcProvider('http://127.0.0.1:8545');
@@ -39,4 +36,6 @@ const getNFTs = async(_studentAddress) => {
   }
 }
 
-module.exports = { addMinter, getNFTs};
+
+
+module.exports = { addMinter, getNFTs, getContractInstance};
