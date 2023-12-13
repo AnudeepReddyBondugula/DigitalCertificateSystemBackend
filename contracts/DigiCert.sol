@@ -18,9 +18,7 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
     mapping(address => uint[]) public creators;
 
     mapping(address => uint[]) public users;
-
     
-
     constructor() ERC721("DigiCert", "AU") {}
 
     function addMinter(address _addr, string calldata _detailsURI) external onlyOwner {

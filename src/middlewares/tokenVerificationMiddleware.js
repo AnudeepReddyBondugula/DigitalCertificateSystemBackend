@@ -1,6 +1,6 @@
 const { verifyToken } = require("../controllers/Authentication/verifyToken");
 
-const tokenVerification = (req, res, next) => {
+const tokenVerification = async (req, res, next) => {
     try{
         const token = req.headers.authorization;
 
