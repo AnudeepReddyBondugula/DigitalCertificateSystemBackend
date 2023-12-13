@@ -1,5 +1,4 @@
 const {provider, getContractInstance, contractAddress, contractABI} = require("../config/smartContractConfig")
-const hre = require("hardhat");
 require("dotenv").config();
 
 
