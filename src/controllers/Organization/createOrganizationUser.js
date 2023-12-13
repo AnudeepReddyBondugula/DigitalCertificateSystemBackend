@@ -1,23 +1,39 @@
 const Organization = require("../../models/organization");
-const { addMinter } = require("../../utils/blockchain-helper");
+const { addMinter } = require("../../services/SmartContractManager");
 const { getRandomKeysAndAddresses } = require("../../utils/crypto-helper");
 
-const createOrganizationUser = async (req, res) => {
-    const {username, password, fullName, organizationName} = req.body;
-    const {privateKey, publicKey, walletAddress} = getRandomKeysAndAddresses();
-    let user = await Organization({
-        username,
-        password,
-        fullName,
-        organizationName,
-        privateKey,
-        publicKey,
-        walletAddress
-    })
-    await addMinter(walletAddress, "Minter 1"); // TODO Details Need to be added
-    await user.save();
+const createOrganizationUser = async (body) => {
+    const {username, password, fullName, organizationName} = body;
+    if (!(username && password && fullName && organizationName)){
+        throw Error(JSON.stringify({
+            status : 403,
+            message : "Required Fields Are Empty!"
+        }));
+    }
+    try{
+        const {privateKey, publicKey, walletAddress} = getRandomKeysAndAddresses();
+        let user = await Organization({
+            username,
+            password,
+            fullName,
+            organizationName,
+            privateKey,
+            publicKey,
+            walletAddress
+        })
+        await user.save();
+        const detailsURI = `Minter : ${username}`; // TODO: Need to make a JSON and upload in IPFS
+        await addMinter(walletAddress, detailsURI);
+    } catch(err){
+        await Organization.deleteOne({username}); // Deleting the User from the database
+        throw Error(JSON.stringify({
+            status : 500,
+            message : "Internal Server Error"
+        }))
+    }
+       
     
-    res.status(201).json({
-        message : "User Added Successfully!"
-    })
+    return true;
 }
+
+module.exports = {createOrganizationUser};
