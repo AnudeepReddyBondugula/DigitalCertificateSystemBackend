@@ -38,7 +38,6 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
 
         creators[msg.sender].push(tokenId);
         users[_to].push(tokenId);
-        tokenHolder[tokenId] = _to;
 
         emit NFTMinted(msg.sender, _to, _uri);
     }
@@ -46,7 +45,6 @@ contract DigiCert is ERC721, ERC721URIStorage, Ownable {
     function burn(uint256 _tokenID) external isMinter(msg.sender) {
         require(isCreatorOf(msg.sender, _tokenID), "Unauthorized! Error: Not the Creator/Issuer of NFT");
         _burn(_tokenID); // Need to check if burn twice or more
-        tokenHolder[_tokenID] = address(0);
         
     }
 

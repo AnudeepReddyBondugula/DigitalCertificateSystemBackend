@@ -589,25 +589,6 @@ const contractABI = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "tokenHolder",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       }
@@ -705,14 +686,15 @@ const contractABI = [
 
 
 const provider = new hre.ethers.JsonRpcProvider(JsonRpcUrl);
-const getContractInstance = (privateKey) => {
+
+// * Provide Private Key Only if you want 
+const getContractInstance = async (privateKey) => {
   try{
-    let customProvider = provider; // * This will change if the private key Exists
+    let signer = provider;
     if (privateKey){
-      const wallet = new hre.ethers.Wallet(privateKey);
-      customProvider = wallet.connect(provider);
+      signer = await (new ethers.Wallet(privateKey, provider));
     }
-    const contract = new ethers.Contract(contractAddress, contractABI, customProvider);
+    const contract = await (new ethers.Contract(contractAddress, contractABI, signer));
     return contract;
 
   } catch(err){
@@ -720,4 +702,4 @@ const getContractInstance = (privateKey) => {
       return null;
   }
 }
-module.exports = {provider, getContractInstance};
+module.exports = {provider, getContractInstance, contractAddress, contractABI};

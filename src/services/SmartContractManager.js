@@ -1,4 +1,6 @@
-const {provider, getContractInstance} = require("../config/smartContractConfig")
+const {provider, getContractInstance, contractAddress, contractABI} = require("../config/smartContractConfig")
+const hre = require("hardhat");
+require("dotenv").config();
 
 
 // * Getter Functions
@@ -31,7 +33,9 @@ const getNFTMetaData = async (tokenID) => {
 // * State Changing Functions
 const addMinter = async (minterAddress, detailsUri) => {
     try{
-        const contract = getContractInstance(process.env.OWNER_PRIVATEKEY);
+        const contract = await getContractInstance(process.env.OWNER_PRIVATEKEY);
+        // const signer = await provider.getSigner();
+        // const contract = new hre.ethers.Contract(contractAddress, contractABI, signer);
         const tx = await contract.addMinter(minterAddress, detailsUri);
         await tx.wait();
         console.log(`Transaction Successful: ${tx.hash}`);
