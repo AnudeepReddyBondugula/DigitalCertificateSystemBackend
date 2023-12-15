@@ -3,7 +3,7 @@ const { userDashboardHandler } = require("../User/userDashboard");
 
 const dashboardHandler = async (req, res) => {
     try{
-        const {role} = req.body;
+        const {role} = req.body.jwTokenData;
         if (role == "user") return userDashboardHandler(req, res);
         else if (role == "organization") return organizationDashboardHandler(req, res);
         else res.status(403).json({

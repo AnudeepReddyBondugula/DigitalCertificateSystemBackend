@@ -5,11 +5,7 @@ const { tokenVerification } = require("../middlewares/tokenVerificationMiddlewar
 const { onlyOrganization } = require("../middlewares/onlyOrganizationMiddleware");
 const { onlyUser } = require("../middlewares/onlyUserMiddleware");
 
-// TODO : Need to be implemented by Session Manager
-const {dashboardHandler} = require("../controllers/SessionControllers/dashboardHandler");
-const { digiLockerHandler } = require("../controllers/SessionControllers/digiLockerHandler");
-const { certificateVerificationHandler } = require("../controllers/SessionControllers/certificateVerificationHandler");
-const { issueCertificateHandler } = require("../controllers/SessionControllers/issueCertificateHandler");
+const {dashboardHandler, digiLockerHandler, certificateVerificationHandler, issueCertificateHandler} = require("../services/SessionManager.js")
 
 const router = express.Router();
 
@@ -32,6 +28,6 @@ router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
 // * Routes only for Organization
 router.post("/issue", tokenVerification, onlyOrganization, issueCertificateHandler);
 
-router.post("/refill", tokenVerification, onlyOrganization, refillBalance);
+// router.post("/refill", tokenVerification, onlyOrganization, refillBalance);
 
 module.exports = router;

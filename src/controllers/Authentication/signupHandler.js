@@ -1,4 +1,4 @@
-const { getUser } = require("../../utils/helpers");
+const { getUser } = require("../../utils/helper");
 const {createUser} = require("../User/createUser");
 const {createOrganizationUser} = require("../Organization/createOrganizationUser");
 
