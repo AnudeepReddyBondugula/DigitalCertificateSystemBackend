@@ -1,5 +1,6 @@
 const ipfsHttpClient = require("ipfs-http-client");
 const {hostUrl, port, protocol} = require("../config/ipfsConfig");
+const fs = require("node:fs/promises")
 
 
 function getIpfsClient() {
@@ -19,7 +20,7 @@ async function saveData(file) {
         return result.path;
     } catch(err) {
         console.error(err.message);
-        return "";
+        return null;
     }
 }
 
@@ -38,4 +39,15 @@ async function getData(hash) {
     }
 }
 
-module.exports = {saveData, getData};
+async function saveFile(filePath) {
+    try{
+        const fileBuffer = await fs.readFile(filePath);
+        const cid = await saveData(fileBuffer);
+        return cid;
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
+}
+
+module.exports = {saveData, getData, saveFile};
