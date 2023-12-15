@@ -25,8 +25,13 @@ router.get("/dashboard", tokenVerification, dashboardHandler);
 
 router.post("/verify", tokenVerification, certificateVerificationHandler);
 
+// * Routes Only for Users
+router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
+
+
+// * Routes only for Organization
 router.post("/issue", tokenVerification, onlyOrganization, issueCertificateHandler);
 
-router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
+router.post("/refill", tokenVerification, onlyOrganization, refillBalance);
 
 module.exports = router;

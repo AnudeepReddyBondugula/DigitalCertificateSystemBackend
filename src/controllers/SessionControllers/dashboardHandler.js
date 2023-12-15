@@ -1,5 +1,3 @@
-const User = require("../../models/user");
-const Organization = require("../../models/organization");
 const { organizationDashboardHandler } = require("../Organization/organizationDashboard");
 const { userDashboardHandler } = require("../User/userDashboard");
 

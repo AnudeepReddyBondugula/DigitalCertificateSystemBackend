@@ -1,4 +1,4 @@
-const issueCertificateHandler = (req, res, next) => {
+const issueCertificateHandler = (req, res) => {
 
 }
 

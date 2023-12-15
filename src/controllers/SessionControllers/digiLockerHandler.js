@@ -1,4 +1,4 @@
-const digiLockerHandler = (req, res, next) => {
+const digiLockerHandler = (req, res) => {
 
 }
 
