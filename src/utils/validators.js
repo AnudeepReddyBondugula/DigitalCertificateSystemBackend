@@ -6,32 +6,40 @@ export const isValidEmail = (_email) => {
     return emailRegex.test(_email);
 }
 
-export const isValidPublicAddress = (_publicAddr) => {
-    const publicAddrRegex = /^0x[a-fA-F0-9]{40}$/gm;
-    return publicAddrRegex.test(_publicAddr);
+export const isValidPassword = (_password, _password2) => {
+  //password with atleast one Upercase, lowercase, numeric, and one special caharacter
+  const pswRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
+
+  return (_password == _password2 && pswRegex.test(_password));
 }
 
-export const isValidAadharCard = (_aadharCard) => {
-    const aadharCardRegex = /^[2-9]{1}[0-9]{3}\s[0-9]{4}\s[0-9]{4}$/
+export const isValidPublicAddress = (_publicAddr) => {
+  const publicAddrRegex = /^0x[a-fA-F0-9]{40}$/gm;
+  return publicAddrRegex.test(_publicAddr);
+}
 
-    return aadharCardRegex.test(_aadharCard);
+export const isValidAadharNumber = (_aadharNumber) => {
+  //12 digit aadharNumber ex: 789654123698(no spaces)
+  const aadharNumberRegex = /^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/
+
+  return aadharNumberRegex.test(_aadharNumber);
 }
 
 export const isvalidatePrivateKey = (_privateKey) => {
-    if (!/^[0-9a-fA-F]{64}$/.test(_privateKey)) {
-        return false;
-    }
+  if (!/^[0-9a-fA-F]{64}$/.test(_privateKey)) {
+    return false;
+  }
 
-    const secp256k1 = new ec('secp256k1');
+  const secp256k1 = new ec('secp256k1');
 
-    try {
-        secp256k1.keyFromPrivate(_privateKey, 'hex');
-    } catch (error) {
-        // Private key is invalid
-        return false;
-    }
+  try {
+    secp256k1.keyFromPrivate(_privateKey, 'hex');
+  } catch (error) {
+    // Private key is invalid
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 // * Verifies the user JWToken -> Used for protected Pages
