@@ -1,8 +1,12 @@
-require("dotenv").config();
-const fs = require("fs/promises")
-async function main() {
-    console.log(process.env.UPLOAD_PATH)
-    const data = await fs.readFile(process.env.UPLOAD_PATH + "matlab1.pdf");
+
+const {saveData, getData, saveFile} = require("../src/services/IpfsManager");
+const fs = require("node:fs");
+async function main () {
+    const cid = await saveFile("tmp/pdfs/matlab1.pdf");
+
+    console.log(cid);
+
+    const data = await getData(cid);
     console.log(data);
 }
 
