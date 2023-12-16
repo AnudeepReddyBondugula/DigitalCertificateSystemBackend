@@ -3,7 +3,7 @@ const User = require("../../models/user");
 
 const certificateVerificationHandler = async (req, res) => {
     try{
-        const {certificateID, username} = req.body;
+        const {certificateID, username} = req.body.userDetails;
         if (certificateID){
             const certificateMetaData = await getNFTMetaData(certificateID);
             return res.json(

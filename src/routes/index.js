@@ -1,4 +1,5 @@
 const express = require("express");
+const fileUpload = require("express-fileupload");
 const { loginHandler, signupHandler } = require("../services/AuthenticationService");
 
 const { tokenVerification } = require("../middlewares/tokenVerificationMiddleware");
@@ -26,7 +27,7 @@ router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
 
 
 // * Routes only for Organization
-router.post("/issue", tokenVerification, onlyOrganization, issueCertificateHandler);
+router.post("/issue", tokenVerification, onlyOrganization, fileUpload({ createParentPath : true}), issueCertificateHandler);
 
 // router.post("/refill", tokenVerification, onlyOrganization, refillBalance);
 

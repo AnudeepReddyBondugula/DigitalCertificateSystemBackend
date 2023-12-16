@@ -1,6 +1,7 @@
 const Organization = require("../models/organization");
 const User = require("../models/user");
 const {getUserNFTsMetaData, getUserNFTsTokenIDs} = require("../services/SmartContractManager");
+require("dotenv").config();
 
 
 const getUser = async (filter) => {
@@ -32,5 +33,15 @@ const generateListOfCertificatesMetaData = async (walletAddress) => {
     }
 }
 
+const storeFileTemp = async (certificateFile, certificateName) => {
+    const uploadPath = process.env.UPLOAD_PATH + certificateName;
+    return new Promise((resolve, reject) => {
+        certificateFile.mv(uploadPath, (err) => {
+            if (err) reject(err);
+            else resolve(uploadPath);
+        })
+    })
+}
 
-module.exports = {getUser, generateListOfCertificatesMetaData};
+
+module.exports = {getUser, generateListOfCertificatesMetaData, storeFileTemp};
