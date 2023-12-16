@@ -1,5 +1,7 @@
 const Organization = require("../../models/organization");
 const User = require("../../models/user");
+const { saveData, saveFile } = require("../../services/IpfsManager");
+const { mintNFT } = require("../../services/SmartContractManager");
 const { storeFileTemp } = require("../../utils/helper");
 
 const issueCertificateHandler = async (req, res) => {
@@ -22,13 +24,8 @@ const issueCertificateHandler = async (req, res) => {
         }
 
         // TODO : Need to Store the Certificate and Metadata in IPFS
-        await storeFileTemp(certificateFile, certificateName);
-        // const fileHash = await 
-
-
-        // TODO : Need to Mint the NFT
-
-
+        const filePath = await storeFileTemp(certificateFile, certificateName);
+        const fileCid = await saveFile(filePath);
         const organizationUser = await Organization.findOne({username : organizationUsername});
 
         const certificateMetaData = {
@@ -44,15 +41,12 @@ const issueCertificateHandler = async (req, res) => {
             CertificateName : certificateName,
             IssueDate : issueDate,
             ExpityDate : expiryDate,
-            CertificateURI : "XYZ" // TODO : ! Need to Keep the CERTIFICATE URI
+            CertificateURI : fileCid
         }
-
-        
-
-
-
-
-
+        const certificateMetaDataCid = await saveData(JSON.stringify(certificateMetaData))
+        await mintNFT(organization.privateKey, user.walletAddress, certificateMetaDataCid);
+        console.log("Minted Successfully!")
+        console.log(certificateMetaData);
     } catch(err){
         res.status(500).json({
             message : "Internal Server Error"

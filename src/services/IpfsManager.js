@@ -13,41 +13,26 @@ function getIpfsClient() {
     return ipfsClient;
 }
 
-async function saveData(file) {
-    try{
-        const ipfsClient = getIpfsClient();
-        const result = await ipfsClient.add(file);
-        return result.path;
-    } catch(err) {
-        console.error(err.message);
-        return null;
-    }
+async function saveData(data) {
+    const ipfsClient = getIpfsClient();
+    const result = await ipfsClient.add(data);
+    return result.path;
 }
 
 async function getData(hash) {
-    try{
-        const ipfs = await getIpfsClient();
-        let accumalatedBuffer = []
-        const content = ipfs.cat(hash);
-        for await (const itr of content){
-            accumalatedBuffer.push(Buffer.from(itr));
-        }
-        return Buffer.concat(accumalatedBuffer);
-    } catch(err) {
-        console.error("Error in Ipfs Manager getData :", err.message);
-        return null;
+    const ipfs = await getIpfsClient();
+    let accumalatedBuffer = []
+    const content = ipfs.cat(hash);
+    for await (const itr of content){
+        accumalatedBuffer.push(Buffer.from(itr));
     }
+    return Buffer.concat(accumalatedBuffer);
 }
 
 async function saveFile(filePath) {
-    try{
-        const fileBuffer = await fs.readFile(filePath);
-        const cid = await saveData(fileBuffer);
-        return cid;
-    } catch (err) {
-        console.error(err);
-        return null;
-    }
+    const fileBuffer = await fs.readFile(filePath);
+    const cid = await saveData(fileBuffer);
+    return cid;
 }
 
 module.exports = {saveData, getData, saveFile};
