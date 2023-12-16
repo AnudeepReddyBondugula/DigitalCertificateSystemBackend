@@ -7,9 +7,8 @@ const tokenVerification = async (req, res, next) => {
         if (!token) {
             throw Error("Invalid Token");
         }
-        const content = await verifyToken(token, process.env.SECRET);
-        req.body.username = content.username;
-        req.body.role = content.role;
+        const jwTokenData = await verifyToken(token, process.env.SECRET);
+        req.body.jwTokenData = jwTokenData;
         next();
     }
     catch(err){
