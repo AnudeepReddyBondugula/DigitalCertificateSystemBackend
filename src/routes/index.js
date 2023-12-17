@@ -23,11 +23,11 @@ router.get("/dashboard", tokenVerification, dashboardHandler);
 router.post("/verify", tokenVerification, certificateVerificationHandler);
 
 // * Routes Only for Users
-router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
+router.get("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
 
 
 // * Routes only for Organization
-router.post("/issue", tokenVerification, onlyOrganization, fileUpload({ createParentPath : true}), issueCertificateHandler);
+router.put("/issue", tokenVerification, onlyOrganization, fileUpload({ createParentPath : true}), issueCertificateHandler);
 
 // router.post("/refill", tokenVerification, onlyOrganization, refillBalance);
 

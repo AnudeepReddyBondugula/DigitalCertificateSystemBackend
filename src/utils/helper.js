@@ -31,6 +31,7 @@ const generateListOfCertificatesMetaData = async (walletAddress) => {
         }
         listOfCertificatesMetaData.push(certificateMetaData);
     }
+    return listOfCertificatesMetaData;
 }
 
 const storeFileTemp = async (certificateFile, certificateName) => {

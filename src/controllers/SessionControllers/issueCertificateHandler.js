@@ -6,6 +6,7 @@ const { storeFileTemp } = require("../../utils/helper");
 
 const issueCertificateHandler = async (req, res) => {
     try{
+        req.body.certificateDetails = JSON.parse(req.body.certificateDetails);
         let {username, certificateName, issueDate, expiryDate} = req.body.certificateDetails;
         const {username : organizationUsername} = req.body.jwTokenData;
         const {certificateFile} = req.files;
@@ -44,9 +45,18 @@ const issueCertificateHandler = async (req, res) => {
             CertificateURI : fileCid
         }
         const certificateMetaDataCid = await saveData(JSON.stringify(certificateMetaData))
-        await mintNFT(organization.privateKey, user.walletAddress, certificateMetaDataCid);
+        try{
+            await mintNFT(organizationUser.privateKey, user.walletAddress, certificateMetaDataCid);
+        } catch (err){
+            return res.status(403).json({
+                "message" : "Insufficient Balance!"
+            })
+        }
         console.log("Minted Successfully!")
         console.log(certificateMetaData);
+        res.status(201).json({
+            message : "Minted Successfully!"
+        })
     } catch(err){
         res.status(500).json({
             message : "Internal Server Error"

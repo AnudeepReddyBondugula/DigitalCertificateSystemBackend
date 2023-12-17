@@ -1,5 +1,6 @@
 const {getNFTMetaData} = require("../../services/SmartContractManager");
 const User = require("../../models/user");
+const { generateListOfCertificatesMetaData } = require("../../utils/helper");
 
 const certificateVerificationHandler = async (req, res) => {
     try{
@@ -17,7 +18,7 @@ const certificateVerificationHandler = async (req, res) => {
             const user = await User.findOne({username});
             if (user){
                 const {walletAddress} = user;
-                
+                const listOfCertificatesMetaData = await generateListOfCertificatesMetaData(walletAddress);
                 return res.json(listOfCertificatesMetaData);
             }
             else{

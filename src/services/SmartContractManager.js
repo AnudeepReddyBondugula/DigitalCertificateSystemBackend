@@ -1,4 +1,5 @@
-const {getContractInstance} = require("../config/smartContractConfig")
+const {getContractInstance} = require("../config/smartContractConfig");
+const { getData } = require("./IpfsManager");
 require("dotenv").config();
 
 
@@ -6,9 +7,14 @@ require("dotenv").config();
 const getUserNFTsMetaData = async (walletAddress) => {
     try{
         const contract = await getContractInstance();
-        const result = await contract.getUserNFTs(walletAddress);
-        // TODO : Need to query IPFS for getting the Metadata of each NFT
-        return result;
+        const userNFTsMetaDataTokenURIs = await contract.getUserNFTs(walletAddress);
+        const userNFTsMetaData =await Promise.all(
+            userNFTsMetaDataTokenURIs.map(async (tokenURI) => {
+                return JSON.parse(await getData(tokenURI));
+            })
+        ) 
+
+        return userNFTsMetaData;
     } catch (err) {
         console.error("Error in Getting User's NFTs MetaData", err.message);
         return null;
@@ -18,8 +24,11 @@ const getUserNFTsMetaData = async (walletAddress) => {
 const getUserNFTsTokenIDs = async (walletAddress) => {
     try{
         const contract = await getContractInstance();
-        const result = await contract.getUserNFTtokenIDs(walletAddress);
-        return result;
+        const userNFTsTokenIDs = await contract.getUserNFTtokenIDs(walletAddress);
+        const uint256ToStringArray = userNFTsTokenIDs.map(tokenID => {
+            return tokenID.toString();
+        });
+        return uint256ToStringArray;
     } catch (err) {
         console.error("Error in Gettig User's NFT Token IDs", err.message);
         return null;
@@ -29,9 +38,9 @@ const getUserNFTsTokenIDs = async (walletAddress) => {
 const getNFTMetaData = async (tokenID) => {
     try{
         const contract =await getContractInstance();
-        const result = await contract.tokenURI(tokenID);
-        // TODO : Need to query IPFS for getting Metadata
-        return result;
+        const nftMetaDataCID = await contract.tokenURI(tokenID);
+        const nftMetaData = JSON.parse(await getData(nftMetaDataCID));
+        return nftMetaData;
     } catch (err) {
         console.error("Error in Getting NFT MetaData", err.message);
         return null;
