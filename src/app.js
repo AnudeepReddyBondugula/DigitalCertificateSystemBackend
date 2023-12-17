@@ -14,7 +14,7 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
-// app.use(logger);
+app.use(logger);
 app.use("/", indexRouter);
 app.use("/admin", adminRouter);
 

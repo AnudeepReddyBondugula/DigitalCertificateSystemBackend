@@ -1,7 +1,5 @@
 const onlyUser = (req, res, next) => {
-    // TODO : Need to implement
     const {role} = req.body.jwTokenData;
-
     if(role === "user") next();
     else{
         return res.status(403).json({
