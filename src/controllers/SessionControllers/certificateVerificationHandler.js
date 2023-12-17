@@ -1,20 +1,14 @@
 const {getNFTMetaData} = require("../../services/SmartContractManager");
-const User = require("../../models/user");
+const User = require("../../models/User");
 const { generateListOfCertificatesMetaData } = require("../../utils/helper");
 
 const certificateVerificationHandler = async (req, res) => {
     try{
+        if (!req.body.userDetails) return res.status(400).json({error : "Required fields are empty"})
+
         const {certificateID, username} = req.body.userDetails;
-        if (certificateID){
-            const certificateMetaData = await getNFTMetaData(certificateID);
-            return res.json(
-                {
-                    certificateID,
-                    certificateMetaData
-                }
-            )
-        }
-        else if (username){
+
+        if (username){
             const user = await User.findOne({username});
             if (user){
                 const {walletAddress} = user;
@@ -22,22 +16,29 @@ const certificateVerificationHandler = async (req, res) => {
                 return res.json(listOfCertificatesMetaData);
             }
             else{
-                return res.status(403).json({
-                    message : "Invalid Username"
+                return res.status(404).json({
+                    error : "User not found"
                 })
             }
         }
-        else{
-            return res.status(403).json({
-                message : "Required Fields Are Empty"
-            });
+        else if (certificateID){
+            const certificateMetaData = await getNFTMetaData(certificateID);
+            return res.json({
+                listOfCertificatesMetaData : [
+                    {
+                        certificateID,
+                        certificateMetaData
+                    }
+                ]
+            })
         }
+        else return res.status(400).json({error : "Required fields are empty"});
+
     } catch(err) {
+        console.error("Error in certificate verification handler", err);
         return res.status(500).json({
-            message : "Internal Server Error"
+            error : "Internal server error"
         })
-        console.error("Error in certificate verification");
-        console.error(err);
         
     }
 }

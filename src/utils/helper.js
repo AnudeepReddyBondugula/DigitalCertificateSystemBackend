@@ -1,5 +1,5 @@
-const Organization = require("../models/organization");
-const User = require("../models/user");
+const Organization = require("../models/Organization");
+const User = require("../models/User");
 const {getUserNFTsMetaData, getUserNFTsTokenIDs} = require("../services/SmartContractManager");
 require("dotenv").config();
 

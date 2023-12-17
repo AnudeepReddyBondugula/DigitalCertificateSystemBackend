@@ -5,17 +5,22 @@ const tokenVerification = async (req, res, next) => {
         const token = req.headers.authorization;
 
         if (!token) {
-            throw Error("Invalid Token");
+            return res.status(401).json({
+                error : "Invalid Token"
+            })
         }
         const jwTokenData = await verifyToken(token, process.env.SECRET);
         req.body.jwTokenData = jwTokenData;
         next();
     }
     catch(err){
-        if (err.message === 'Invalid Token'){
-            return res.status(403).json({message : "Unauthorized"});
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({ error: 'Token expired' });
+          }
+        if (err instanceof jwt.JsonWebTokenError) {
+            return res.status(401).json({ error: 'Invalid token' });
         }
-        else return res.status(500).json({message : "Internal Server Error"});
+        else return res.status(500).json({error : "Internal server error"});
     }
 }
 

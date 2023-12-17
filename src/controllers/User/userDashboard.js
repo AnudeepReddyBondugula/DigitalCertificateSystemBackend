@@ -1,4 +1,4 @@
-const User = require("../../models/user");
+const User = require("../../models/User");
 
 const userDashboardHandler = async (req, res) => {
     const {username} = req.body.jwTokenData;
