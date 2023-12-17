@@ -1,14 +1,13 @@
-const Organization = require("../../models/organization");
+const Organization = require("../../models/Organization");
 const { addMinter } = require("../../services/SmartContractManager");
 const { getRandomKeysAndAddresses } = require("../../utils/crypto-helper");
 
-const createOrganizationUser = async (body) => {
-    const {username, password, fullName, organizationName} = body;
+const createOrganizationUserHandler = async (req, res) => {
+    const {username, password, fullName, organizationName} = req.body;
     if (!(username && password && fullName && organizationName)){
-        throw Error(JSON.stringify({
-            status : 403,
-            message : "Required Fields Are Empty!"
-        }));
+        return res.status(400).json({
+            error : "Required fields are empty"
+        })
     }
     try{
         const {privateKey, publicKey, walletAddress} = getRandomKeysAndAddresses();
@@ -26,14 +25,10 @@ const createOrganizationUser = async (body) => {
         await addMinter(walletAddress, detailsURI);
     } catch(err){
         await Organization.deleteOne({username}); // Deleting the User from the database
-        throw Error(JSON.stringify({
-            status : 500,
-            message : "Internal Server Error"
-        }))
+        return res.status(500).json({
+            error : "Internal server error"
+        })
     }
-       
-    
-    return true;
 }
 
-module.exports = {createOrganizationUser};
+module.exports = {createOrganizationUserHandler};

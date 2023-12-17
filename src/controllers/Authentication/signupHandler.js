@@ -1,45 +1,36 @@
 const { getUser } = require("../../utils/helper");
-const {createUser} = require("../User/createUser");
-const {createOrganizationUser} = require("../Organization/createOrganizationUser");
+const {createUserHandler} = require("../User/createUserHandler");
+const {createOrganizationUserHandler} = require("../Organization/createOrganizationUserHandler");
 
 const signupHandler = async (req, res) => {
     try{
         const {username, role} = req.body;
         if (!(username && role)){
-            throw Error(JSON.stringify({
-                status : 403,
-                message : "Required Fields Are Empty"
-            }));
+            return res.status(400).json({
+                error : "Required fields are empty"
+            })
         }
         const user = await getUser({username}); //* Checking if any user Exists aldready
         if (user){
-            console.log("[FAILED] User Already Exists!");
-            throw Error(JSON.stringify({
-                status : 403,
-                message : "User Aldready Exists!"
-            }));
+            return res.status(409).json({
+                error : "Username already exists"
+            });
         }
         if (role === "user"){
-            await createUser(req.body);
+            return createUserHandler(req, res);
         }
         else if (role === "organization"){
-            await createOrganizationUser(req.body);
+            return createOrganizationUserHandler(req, res);
         }
         else{
-            throw Error(JSON.stringify({
-                status : 403,
-                message : "Unknown Role"
-            }));
+            return res.status(400).json({
+                error : "Unknown Role"
+            })
         }
-        res.status(201).json({
-            message : "User Added Successfully!"
-        })
-        
     } catch(err) {
-        const {status, message} = JSON.parse(err.message);
-        console.error("Error: " + message);
-        res.status(status).json({
-            message
+        console.error("Error in SignUp: " + err);
+        res.status(500).json({
+            error : "Internal server error"
         })
     }
 }

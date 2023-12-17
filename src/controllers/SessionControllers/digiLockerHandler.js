@@ -1,4 +1,4 @@
-const User = require("../../models/user");
+const User = require("../../models/User");
 const { generateListOfCertificatesMetaData } = require("../../utils/helper");
 
 const digiLockerHandler = async (req, res) => {
@@ -8,11 +8,10 @@ const digiLockerHandler = async (req, res) => {
         const listOfCertificatesMetaData = await generateListOfCertificatesMetaData(walletAddress);
         res.json(listOfCertificatesMetaData);
     } catch(err){
-        res.status(500).json({
-            message : "Internal Server Error"
+        console.error("Error in DigiLockerHandler", err);
+        return res.status(500).json({
+            error : "Internal server error"
         })
-        console.error("Error in DigiLockerHandler");
-        console.error(err);
     }
 }
 

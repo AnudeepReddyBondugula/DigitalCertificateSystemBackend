@@ -6,12 +6,13 @@ const dashboardHandler = async (req, res) => {
         const {role} = req.body.jwTokenData;
         if (role == "user") return userDashboardHandler(req, res);
         else if (role == "organization") return organizationDashboardHandler(req, res);
-        else res.status(403).json({
-            message : "Unauthorized! [Unknown Role]"
+        else return res.status(400).json({
+            error : "Unknown role"
         })
-    }catch(err){
+    } catch(err){
+        console.error("Error in dashboardHandler", err);
         res.status(500).json({
-            message : "Internal Server Error"
+            error : "Internal server error"
         });
     }
 }
