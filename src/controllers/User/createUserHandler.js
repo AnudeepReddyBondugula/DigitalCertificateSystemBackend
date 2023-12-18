@@ -28,6 +28,9 @@ const createUserHandler = async (req, res) => {
         walletAddress
     })
     await user.save();
+    return res.status(201).json({
+        message : "Signup success"
+    })
 }
 
 module.exports = {createUserHandler};

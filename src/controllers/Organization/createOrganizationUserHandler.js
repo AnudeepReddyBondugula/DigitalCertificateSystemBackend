@@ -23,6 +23,9 @@ const createOrganizationUserHandler = async (req, res) => {
         await user.save();
         const detailsURI = `Minter : ${username}`; // TODO: Need to make a JSON and upload in IPFS
         await addMinter(walletAddress, detailsURI);
+        return res.status(201).json({
+            message : "Signup success"
+        })
     } catch(err){
         await Organization.deleteOne({username}); // Deleting the User from the database
         return res.status(500).json({
