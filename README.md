@@ -6,6 +6,11 @@ The DigitalCertificateSystemBackend repository presents a comprehensive Blockcha
 
 
 ## Technology Stack
+<a href='' target="_blank"><img alt='react' src='https://img.shields.io/badge/NodeJs-100000?style=for-the-badge&logo=react&logoColor=0EC7A7&labelColor=F8FAF9&color=15BAAC'/></a>
+<a href='' target="_blank"><img alt='Node.Js' src='https://img.shields.io/badge/NodeJs-100000?style=for-the-badge&logo=Node.Js&logoColor=202122&labelColor=F8FAF9&color=3DED34'/></a>
+<a href='https://github.com/shivamkapasia0' target="_blank"><img alt='Ethers.js' src='https://img.shields.io/badge/ether.JS-100000?style=for-the-badge&logo=Ethers.js&logoColor=000000&labelColor=FAEBEB&color=000000'/></a>
+<a href='https://github.com/shivamkapasia0' target="_blank"><img alt='mongoDB' src='https://img.shields.io/badge/Mongo_DB-100000?style=for-the-badge&logo=mongoDB&logoColor=216625&labelColor=FAEBEB&color=216625'/></a>
+<a href='https://github.com/shivamkapasia0' target="_blank"><img alt='IPFS' src='https://img.shields.io/badge/IPFS-100000?style=for-the-badge&logo=IPFS&logoColor=51BFFF&labelColor=FAEBEB&color=51BFFF'/></a>
 
 1) NodeJS
   
