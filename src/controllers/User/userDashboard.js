@@ -8,7 +8,8 @@ const userDashboardHandler = async (req, res) => {
         details : {
             username,
             walletAddress
-        }
+        },
+        role : "user"
     })
 }
 

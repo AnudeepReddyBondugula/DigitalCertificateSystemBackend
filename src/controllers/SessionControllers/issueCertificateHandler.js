@@ -58,7 +58,8 @@ const issueCertificateHandler = async (req, res) => {
             })
         }
         return res.status(201).json({
-            message : "Issue certificate success"
+            message : "Issue certificate success",
+            role : "organization"
         })
     } catch(err){
         console.error("Error in issue Certificate Handler");

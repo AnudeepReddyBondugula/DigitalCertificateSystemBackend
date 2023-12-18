@@ -10,7 +10,8 @@ const organizationDashboardHandler = async (req, res) => {
                 username,
                 organizationName,
                 walletAddress
-            }
+            },
+            role : "organization"
         })
     } catch(err) {
         console.error("Error in OrganizationDashboardHandler ", err);
