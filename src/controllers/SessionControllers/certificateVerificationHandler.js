@@ -23,6 +23,11 @@ const certificateVerificationHandler = async (req, res) => {
         }
         else if (certificateID){
             const certificateMetaData = await getNFTMetaData(certificateID);
+            if (!certificateMetaData){
+                return res.status(404).json({
+                    error : "Invalid certificate ID"
+                })
+            }
             return res.json({
                 listOfCertificatesMetaData : [
                     {

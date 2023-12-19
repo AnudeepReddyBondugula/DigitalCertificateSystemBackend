@@ -46,7 +46,7 @@ const issueCertificateHandler = async (req, res) => {
             },
             CertificateName : certificateName,
             IssueDate : issueDate,
-            ExpityDate : expiryDate,
+            ExpiryDate : expiryDate,
             CertificateURI : fileCID // ? Add image URI of certificate
         }
         const certificateMetaDataCID = await saveData(JSON.stringify(certificateMetaData))
