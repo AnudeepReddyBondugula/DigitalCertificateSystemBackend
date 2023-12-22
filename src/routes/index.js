@@ -1,3 +1,4 @@
+// Importing the required frameworks, functions and modules
 const express = require("express");
 const { loginHandler, signupHandler } = require("../services/AuthenticationService");
 
@@ -11,12 +12,18 @@ const { digiLockerHandler } = require("../controllers/SessionControllers/digiLoc
 const { certificateVerificationHandler } = require("../controllers/SessionControllers/certificateVerificationHandler");
 const { issueCertificateHandler } = require("../controllers/SessionControllers/issueCertificateHandler");
 
+// Creating an instance of Express router
 const router = express.Router();
 
+// Defining a route handler for the "GET /" route
 router.get("/", (req, res) => {
+
+    // Sending an HTML response for "GET /" route
     res.send("<h1>In Index Page</h1>")
 })
 
+
+// Handling all the GET and POST routes
 router.post("/login", loginHandler);
 
 router.post("/signup", signupHandler);
@@ -29,4 +36,5 @@ router.post("/issue", tokenVerification, onlyOrganization, issueCertificateHandl
 
 router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
 
+// Exporting the router to use it in the other parts of the application
 module.exports = router;

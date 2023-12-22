@@ -1,8 +1,14 @@
+// Importing the hardhat and ethers module to use in this application
 const hre = require("hardhat")
 const {ethers} = require("hardhat");
 
+// Ethereum address of the deployed contract
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+
+// JSON-RPC URL for connecting to a Ethreum node
 const JsonRpcUrl = "http://127.0.0.1:8545";
+
+// ABI (Application Binary Interface) of the deployed smart contract
 const contractABI = [
   {
     "inputs": [],
@@ -722,22 +728,32 @@ const contractABI = [
   }
 ]
 
-
+// Creating an Ethereum provider using the Hardhat JsonRpcProvider
 const provider = new hre.ethers.JsonRpcProvider(JsonRpcUrl);
 
 // * Provide Private Key Only if you want 
 const getContractInstance = async (privateKey) => {
   try{
+
+    // Assigning provider as default value for signer
     let signer = provider;
     if (privateKey){
+
+      // If privateKey provided, create a signer using a wallet
       signer = await (new ethers.Wallet(privateKey, provider));
     }
+
+    // Create an instance of smart contract using ethers.Contract constructor
     const contract = await (new ethers.Contract(contractAddress, contractABI, signer));
     return contract;
 
   } catch(err){
+
+      // Log an error message if there is an issue in creating smart contract instance
       console.error("Error in Generating Contract Instance!" + err.message);
       return null;
   }
 }
+
+// Exporting provider, contractAddress, contractABI and contract instance generating function
 module.exports = {provider, getContractInstance, contractAddress, contractABI};
