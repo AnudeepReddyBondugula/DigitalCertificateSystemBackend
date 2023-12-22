@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-// Defining a function to handle the certificate issue requests
-const issueCertificateHandler = (req, res, next) => {
-        // Yet to be completed!!!
-=======
-const Organization = require("../../models/Organization");
+const Organization = require("../../models/organization");
 const User = require("../../models/User");
 const { saveData, saveFile } = require("../../services/IpfsManager");
 const { mintNFT } = require("../../services/SmartContractManager");
@@ -73,7 +68,6 @@ const issueCertificateHandler = async (req, res) => {
             error : "Internal server error"
         })
     }
->>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456
 }
 
 // Exporting the issueCertificateHandler to use it in the other parts of the application

@@ -1,4 +1,4 @@
-const Organization = require("../../models/Organization");
+const Organization = require("../../models/organization");
 const { addMinter } = require("../../services/SmartContractManager");
 const { getRandomKeysAndAddresses } = require("../../utils/crypto-helper");
 

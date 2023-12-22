@@ -1,5 +1,5 @@
 // Importing the required modules
-const User = require("../../models/user");
+const User = require("../../models/User");
 const { getRandomKeysAndAddresses } = require("../../utils/crypto-helper");
 
 // Creating a new user

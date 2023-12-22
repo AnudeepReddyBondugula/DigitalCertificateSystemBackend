@@ -1,4 +1,4 @@
-const Organization = require("../../models/Organization");
+const Organization = require("../../models/organization");
 
 // Creating an async function to handle requests to the organization dashboard
 const organizationDashboardHandler = async (req, res) => {
