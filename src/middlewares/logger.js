@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Defining a middleware function that takes three parameters: req (request), res (response) and next
 function logger(req, res, next) {
     // Logging information about the incoming request to the console
@@ -18,3 +19,11 @@ function logger(req, req, next) {
 
 module.exports = {logger};
 >>>>>>> a74540470ed7f292c1e4d2f2c62c089e399c24dc
+=======
+function logger(req, res, next) {
+    console.log(req.method + "  /" + (req.headers).host + req.url);
+    next();
+}
+
+module.exports = {logger};
+>>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456

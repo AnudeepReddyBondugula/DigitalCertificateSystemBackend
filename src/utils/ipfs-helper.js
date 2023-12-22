@@ -1,6 +1,5 @@
 const {create} = require("ipfs-http-client")
 const fs = require('fs');
-const fileUpload = require("express-fileupload");
 
 async function getIpfsClient() {
     const ipfs = await create(

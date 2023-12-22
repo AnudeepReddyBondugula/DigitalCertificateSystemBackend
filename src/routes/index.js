@@ -1,16 +1,13 @@
 // Importing the required frameworks, functions and modules
 const express = require("express");
+const fileUpload = require("express-fileupload");
 const { loginHandler, signupHandler } = require("../services/AuthenticationService");
 
 const { tokenVerification } = require("../middlewares/tokenVerificationMiddleware");
 const { onlyOrganization } = require("../middlewares/onlyOrganizationMiddleware");
 const { onlyUser } = require("../middlewares/onlyUserMiddleware");
 
-// TODO : Need to be implemented by Session Manager
-const {dashboardHandler} = require("../controllers/SessionControllers/dashboardHandler");
-const { digiLockerHandler } = require("../controllers/SessionControllers/digiLockerHandler");
-const { certificateVerificationHandler } = require("../controllers/SessionControllers/certificateVerificationHandler");
-const { issueCertificateHandler } = require("../controllers/SessionControllers/issueCertificateHandler");
+const {dashboardHandler, digiLockerHandler, certificateVerificationHandler, issueCertificateHandler} = require("../services/SessionManager.js")
 
 // Creating an instance of Express router
 const router = express.Router();
@@ -32,9 +29,14 @@ router.get("/dashboard", tokenVerification, dashboardHandler);
 
 router.post("/verify", tokenVerification, certificateVerificationHandler);
 
-router.post("/issue", tokenVerification, onlyOrganization, issueCertificateHandler);
+// * Routes Only for Users
+router.get("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
 
-router.post("/digilocker", tokenVerification, onlyUser , digiLockerHandler);
+
+// * Routes only for Organization
+router.put("/issue", tokenVerification, onlyOrganization, fileUpload({ createParentPath : true}), issueCertificateHandler);
+
+// router.post("/refill", tokenVerification, onlyOrganization, refillBalance);
 
 // Exporting the router to use it in the other parts of the application
 module.exports = router;

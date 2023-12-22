@@ -14,13 +14,13 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
-// app.use(logger);
+app.use(logger);
 app.use("/", indexRouter);
 app.use("/admin", adminRouter);
 
 app.use("*", (req, res) => {
   res.status(404).json({
-    message : "Page Not Found!"
+    error : "Page not found"
   })
 })
 

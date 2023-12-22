@@ -13,7 +13,7 @@ const verifyToken = async (token, secret) => {
 
 			// If error, reject the promise with an "Invalid Token" error
 			if (err){
-				reject(new Error("Invalid Token"));
+				reject(err);
 			}
 
 			// If success, resolve promise with the decoded payload of the token

@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 // Importing the required functions from the respective modules
 const { getUser } = require("../../utils/helpers");
+=======
+const { getUser } = require("../../utils/helper");
+>>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456
 const {generateToken} = require("./generateToken");
 
 // Loading environment variables from a .env file
@@ -15,9 +19,14 @@ async function loginHandler(req, res) {
         // Checking if password or username is missing
         if (!username || !password){
             console.log("[FAILED] Username or Password is empty!");
+<<<<<<< HEAD
             // Sending a 403 (Forbidden) response with "Unauthorized" message
             return res.status(403).json({
                 message : "Unauthorized!"
+=======
+            return res.status(400).json({
+                error : "Required fields are empty"
+>>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456
             });
         }
 
@@ -26,9 +35,9 @@ async function loginHandler(req, res) {
 
         // If user is not found (Invalid credentials)
         if (!user){
-            console.log("[FAILED] Invalid Username or Password!");
-            return res.status(403).json({
-                message : "Unauthorized!"
+            console.log("FAILED : User not found");
+            return res.status(404).json({
+                error : "User not found"
             });
         }
 
@@ -38,9 +47,11 @@ async function loginHandler(req, res) {
 
         // Sending a 200 (OK) response along with the generated JWT and user role
         res.status(200).json({
+            message : "Login success",
             jwtoken,
             role
         })
+<<<<<<< HEAD
 
         // Logging a success message
         console.log("[SUCCESS] Login Successfull !")
@@ -50,8 +61,14 @@ async function loginHandler(req, res) {
         console.log("[FAILED] Error in Login : " + err);
 
         // Sending a 500 (Internal Server Error) response with an error message
+=======
+        console.log("SUCCESS: Login Successfull !")
+    }
+    catch (err) {
+        console.log("FAILED: Error in Login : " + err);
+>>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456
         return res.status(500).json({
-            message : "Interval Server Error!"
+            error : "Interval server error!"
         })
     }
 }

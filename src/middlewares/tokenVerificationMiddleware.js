@@ -1,7 +1,11 @@
 // Importing the verifyToken function from the authentication controller
 const { verifyToken } = require("../controllers/Authentication/verifyToken");
+<<<<<<< HEAD
 
 // Defining an async middleware function for token verification
+=======
+const jwt = require("jsonwebtoken")
+>>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456
 const tokenVerification = async (req, res, next) => {
     try{
 
@@ -10,8 +14,11 @@ const tokenVerification = async (req, res, next) => {
 
         // If token not present: Throwing an error
         if (!token) {
-            throw Error("Invalid Token");
+            return res.status(401).json({
+                error : "Invalid Token"
+            })
         }
+<<<<<<< HEAD
 
         // Verifying the token using the verifyToken function with the provided secret key
         const content = await verifyToken(token, process.env.SECRET);
@@ -32,6 +39,20 @@ const tokenVerification = async (req, res, next) => {
 
         // If other error: Responding with a status code of 500 and an error message
         else return res.status(500).json({message : "Internal Server Error"});
+=======
+        const jwTokenData = await verifyToken(token, process.env.SECRET);
+        req.body.jwTokenData = jwTokenData;
+        next();
+    }
+    catch(err){
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({ error: 'Token expired' });
+          }
+        if (err instanceof jwt.JsonWebTokenError) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+        else return res.status(500).json({error : "Internal server error"});
+>>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456
     }
 }
 
