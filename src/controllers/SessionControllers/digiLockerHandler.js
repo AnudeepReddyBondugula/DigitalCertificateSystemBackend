@@ -1,6 +1,8 @@
+// Importing the user schema and required modules
 const User = require("../../models/User");
 const { generateListOfCertificatesMetaData } = require("../../utils/helper");
 
+// Defining an async function to handle requests to DigiLocker
 const digiLockerHandler = async (req, res) => {
     try{
         const {username} = req.body.jwTokenData;
@@ -15,4 +17,5 @@ const digiLockerHandler = async (req, res) => {
     }
 }
 
+// Exporting the digiLockerHandler to use it in the other parts of the application
 module.exports = {digiLockerHandler}
