@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-// Defining a function to handle the certificate verification requests
-const certificateVerificationHandler = (req, res, next) => {
-    // yet to be completed!!!
-=======
 const {getNFTMetaData} = require("../../services/SmartContractManager");
 const User = require("../../models/User");
 const { generateListOfCertificatesMetaData } = require("../../utils/helper");
@@ -51,7 +46,6 @@ const certificateVerificationHandler = async (req, res) => {
         })
         
     }
->>>>>>> 7066c43c398a068efbc9367fb0443233e9b0c456
 }
 
 // Exporting the certificateVerificationHandler to use it in the other parts of the application
