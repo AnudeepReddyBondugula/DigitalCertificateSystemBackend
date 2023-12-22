@@ -1,3 +1,4 @@
+// Importing the getUser and generateToken functions 
 const { getUser } = require("../../utils/helper");
 const {generateToken} = require("./generateToken");
 
@@ -19,12 +20,14 @@ async function loginHandler(req, res) {
             });
         }
 
-        // Retrieving user information based on provided details
+        // Retrieving user information based on given details
         const user = await getUser({username, password});
 
         // If user is not found (Invalid credentials)
         if (!user){
             console.log("FAILED : User not found");
+
+            // Sending a 404 status code along with an error message
             return res.status(404).json({
                 error : "User not found"
             });
@@ -41,11 +44,13 @@ async function loginHandler(req, res) {
             role
         })
 
-        // Logging a success message
+        // Logging a success message to console
         console.log("[SUCCESS] Login Successfull !")
     }
     catch (err) {
         console.log("FAILED: Error in Login : " + err);
+
+        // Sending a status code of 500 along with an error message
         return res.status(500).json({
             error : "Interval server error!"
         })

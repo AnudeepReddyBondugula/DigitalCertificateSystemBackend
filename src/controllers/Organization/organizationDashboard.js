@@ -1,3 +1,4 @@
+// Importing the Organization schema
 const Organization = require("../../models/organization");
 
 // Creating an async function to handle requests to the organization dashboard

@@ -1,4 +1,4 @@
-// Importing the jsonwebtoken library to work with JSON Web Tokens(JWTs)
+// Importing the jsonwebtoken library to work with JSON Web Tokens (JWTs)
 const jwt = require("jsonwebtoken");
 
 // Function to provide a JWT based on given content and secret

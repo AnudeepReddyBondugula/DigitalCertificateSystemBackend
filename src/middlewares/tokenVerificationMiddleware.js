@@ -13,11 +13,19 @@ const tokenVerification = async (req, res, next) => {
                 error : "Invalid Token"
             })
         }
+
+        // Verifying the token using verifyToken function and secret key
         const jwTokenData = await verifyToken(token, process.env.SECRET);
+
+        // Adding token data to request body
         req.body.jwTokenData = jwTokenData;
+
+        // Passing the control to next middleware in the stack
         next();
     }
     catch(err){
+
+        // Catching and handling the errors
         if (err instanceof jwt.TokenExpiredError) {
             return res.status(401).json({ error: 'Token expired' });
           }

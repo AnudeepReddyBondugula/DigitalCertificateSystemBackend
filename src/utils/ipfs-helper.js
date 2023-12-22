@@ -1,6 +1,8 @@
+// Importing the create function and fs module
 const {create} = require("ipfs-http-client")
 const fs = require('fs');
 
+// Defining an async function to create an IPFS client instance
 async function getIpfsClient() {
     const ipfs = await create(
         {
@@ -15,6 +17,8 @@ async function getIpfsClient() {
 
 
 // * Stores the file in IPFS and returns the hash (path) (CID)
+
+// Parameter for the function is a file
 async function saveData(file) {
     let ipfs = await getIpfsClient();
     let result = await ipfs.add(file);
@@ -33,6 +37,9 @@ async function getData(hash){
     return Buffer.concat(accumalatedBuffer);
 }
 
+// Defining an async function to store file in IPFS and returns its CID
+
+// Parameter for this function is file path
 async function saveFile(filePath) {
     const pdfBuffer = fs.readFileSync(filePath);
     const ipfs = await getIpfsClient();
@@ -40,4 +47,6 @@ async function saveFile(filePath) {
     return result.path;
 }
 
+
+// Exporting the files as object to use in other parts of the application
 module.exports = {getIpfsClient, saveData, getData, saveFile};

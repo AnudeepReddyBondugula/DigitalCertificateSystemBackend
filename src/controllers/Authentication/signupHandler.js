@@ -1,3 +1,4 @@
+// Importing the required functions
 const { getUser } = require("../../utils/helper");
 const {createUserHandler} = require("../User/createUserHandler");
 const {createOrganizationUserHandler} = require("../Organization/createOrganizationUserHandler");
@@ -17,6 +18,8 @@ const signupHandler = async (req, res) => {
 
         const user = await getUser({username}); // Checking if a user Exists aldready
         if (user){
+
+            // Sending a status code of 409 along with an error
             return res.status(409).json({
                 error : "Username already exists"
             });
@@ -36,6 +39,8 @@ const signupHandler = async (req, res) => {
         }
     } catch(err) {
         console.error("Error in SignUp: " + err);
+
+        // Sending a status code of 500 along with an error
         res.status(500).json({
             error : "Internal server error"
         })

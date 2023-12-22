@@ -749,11 +749,11 @@ const getContractInstance = async (privateKey) => {
 
   } catch(err){
 
-      // Log an error message if there is an issue in creating smart contract instance
+      // Logging an error message if there is an issue in creating smart contract instance
       console.error("Error in Generating Contract Instance!" + err.message);
       return null;
   }
 }
 
-// Exporting provider, contractAddress, contractABI and contract instance generating function
+// Exporting provider, contractAddress, contractABI and contract instance generating function to use in the other parts of the application
 module.exports = {provider, getContractInstance, contractAddress, contractABI};
