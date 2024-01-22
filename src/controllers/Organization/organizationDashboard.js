@@ -1,5 +1,7 @@
-const Organization = require("../../models/Organization");
+// Importing the Organization schema
+const Organization = require("../../models/organization");
 
+// Creating an async function to handle requests to the organization dashboard
 const organizationDashboardHandler = async (req, res) => {
     try{
         const {username} = req.body.jwTokenData;
@@ -21,4 +23,5 @@ const organizationDashboardHandler = async (req, res) => {
     }
 }
 
+// Exporting the organizationDashboardHandler to use it in the other parts of the application
 module.exports = {organizationDashboardHandler};
